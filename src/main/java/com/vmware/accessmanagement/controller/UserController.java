@@ -10,8 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,11 +36,12 @@ public class UserController {
 
     @PostMapping(value = "/createUser", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity createUser(@RequestBody UserDto userDto) {
+    public ResponseEntity createUser(@Valid @RequestBody UserDto userDto) {
         try{
             userService.createUser(modelMapper.map(userDto, User.class));
         }catch(Exception e){
             log.error(e.getMessage());
+//            throw e;
             throw new CreateUserException();
         }
         return ResponseEntity.status(HttpStatus.CREATED).body("Created User with User Name: '" + userDto.getUserName() +"'");
@@ -46,5 +51,17 @@ public class UserController {
     public UserDto getUser(@PathVariable String userName) {
         log.info("User Name -> " + userName);
         return userService.getUser(userName);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
     }
 }

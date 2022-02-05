@@ -13,7 +13,7 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    @Log4j2
+@Log4j2
 @Transactional
 public class UserControllerTests extends BaseTest {
     @Test

@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Entity
@@ -20,6 +22,8 @@ public class User {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     Long id;
 
+    @NotBlank(message = "UserName is mandatory")
+    @Size(min=5, max=20)
     @Column(name = "user_name")
     String userName;
 
@@ -41,6 +45,7 @@ public class User {
     String address;
 
     @Convert(converter = AttributeEncryptor.class)
+    @NotBlank(message = "Password is mandatory")
     @Column(name = "password")
     String password;
 
