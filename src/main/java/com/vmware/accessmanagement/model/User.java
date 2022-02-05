@@ -2,6 +2,8 @@ package com.vmware.accessmanagement.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.vmware.accessmanagement.encryption.AttributeEncryptor;
+import com.vmware.accessmanagement.service.UserService;
+import com.vmware.accessmanagement.validator.Unique;
 import com.vmware.accessmanagement.validator.ValidPassword;
 import com.vmware.accessmanagement.validator.ValidUserName;
 import lombok.Getter;
@@ -10,7 +12,6 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Entity
@@ -24,10 +25,10 @@ public class User {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     Long id;
 
+    @Column(name = "user_name", unique = true)
     @NotBlank(message = "UserName is mandatory")
     @ValidUserName
-    //@Size(min=5, max=20)
-    @Column(name = "user_name",unique = true)
+    //@Unique(service = UserService.class, fieldName = "userName", message = "UserName.unique.violation")
     String userName;
 
     @Column(name = "first_name")

@@ -1,7 +1,6 @@
 package com.vmware.accessmanagement.controller;
 
 import com.vmware.accessmanagement.dto.UserDto;
-import com.vmware.accessmanagement.exception.CreateUserException;
 import com.vmware.accessmanagement.model.User;
 import com.vmware.accessmanagement.service.UserService;
 import lombok.extern.log4j.Log4j2;
@@ -11,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +22,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/users")
 @Log4j2
+@Validated
 public class UserController {
     @Autowired
     private UserService userService;
@@ -42,7 +43,6 @@ public class UserController {
         }catch(Exception e){
             log.error(e.getMessage());
             throw e;
-//            throw new CreateUserException();
         }
         return ResponseEntity.status(HttpStatus.CREATED).body("Created User with User Name: '" + userDto.getUserName() +"'");
     }

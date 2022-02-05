@@ -12,4 +12,6 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Long> {
     User findUserByUserName(@Param("userName") String userName);
     List<User> findAll();
+    boolean existsUserByUserName(@Param("userName") String userName);
+    boolean existsByUserName(String userName);
 }
