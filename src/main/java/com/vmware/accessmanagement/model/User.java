@@ -3,6 +3,7 @@ package com.vmware.accessmanagement.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.vmware.accessmanagement.encryption.AttributeEncryptor;
 import com.vmware.accessmanagement.validator.ValidPassword;
+import com.vmware.accessmanagement.validator.ValidUserName;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,8 +25,9 @@ public class User {
     Long id;
 
     @NotBlank(message = "UserName is mandatory")
-    @Size(min=5, max=20)
-    @Column(name = "user_name")
+    @ValidUserName
+    //@Size(min=5, max=20)
+    @Column(name = "user_name",unique = true)
     String userName;
 
     @Column(name = "first_name")
