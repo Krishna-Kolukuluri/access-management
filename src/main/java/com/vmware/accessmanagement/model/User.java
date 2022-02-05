@@ -10,7 +10,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name ="Users")
+@Table(name ="User")
 @NoArgsConstructor
 @Getter
 @Setter
@@ -19,7 +19,6 @@ public class User {
     @Column(name ="id")
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     Long id;
-
 
     @Column(name = "user_name")
     String userName;
