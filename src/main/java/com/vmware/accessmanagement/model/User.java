@@ -2,6 +2,7 @@ package com.vmware.accessmanagement.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.vmware.accessmanagement.encryption.AttributeEncryptor;
+import com.vmware.accessmanagement.validator.ValidPassword;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -46,6 +47,7 @@ public class User {
 
     @Convert(converter = AttributeEncryptor.class)
     @NotBlank(message = "Password is mandatory")
+    @ValidPassword
     @Column(name = "password")
     String password;
 

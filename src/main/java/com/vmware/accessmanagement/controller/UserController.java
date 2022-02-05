@@ -41,8 +41,8 @@ public class UserController {
             userService.createUser(modelMapper.map(userDto, User.class));
         }catch(Exception e){
             log.error(e.getMessage());
-//            throw e;
-            throw new CreateUserException();
+            throw e;
+//            throw new CreateUserException();
         }
         return ResponseEntity.status(HttpStatus.CREATED).body("Created User with User Name: '" + userDto.getUserName() +"'");
     }
