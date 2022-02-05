@@ -29,11 +29,11 @@ public class UserControllerTests extends BaseTest {
         userDto.setAddress("XXXXXXX");
         userDto.setPassword("XYZ");
         String json = mapToJson(userDto);
-        String uri = "http://localhost:8080/createUser";
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(uri) .contentType(MediaType.APPLICATION_JSON).content(json)).andReturn();
+        String uri = "/users/createUser";
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(uri).contentType(MediaType.APPLICATION_JSON).content(json)).andReturn();
         int status = mvcResult.getResponse().getStatus();
         assertEquals(201, status);
         String content = mvcResult.getResponse().getContentAsString();
-        assertEquals("Created UserUName", content);
+        assertEquals("Created User with User Name: '"+userDto.getUserName()+"'", content);
     }
 }

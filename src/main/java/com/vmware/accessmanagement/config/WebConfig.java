@@ -1,4 +1,4 @@
-package com.vmware.accessmanagement.bootstrap;
+package com.vmware.accessmanagement.config;
 
 import  com.vmware.accessmanagement.interceptor.LogInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;

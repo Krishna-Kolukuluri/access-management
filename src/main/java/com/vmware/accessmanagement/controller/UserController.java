@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/users")
 @Log4j2
 public class UserController {
     @Autowired
@@ -24,7 +25,7 @@ public class UserController {
     @Autowired
     private ModelMapper modelMapper;
 
-    @RequestMapping("/")
+    @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<UserDto> getUsers(Map<String, Object> model) {
         return userService.getUsers();
     }
@@ -38,10 +39,10 @@ public class UserController {
             log.error(e.getMessage());
             throw new CreateUserException();
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body("Created User" + userDto.getUserName());
+        return ResponseEntity.status(HttpStatus.CREATED).body("Created User with User Name: '" + userDto.getUserName() +"'");
     }
 
-    @GetMapping(value = "/user/{userName}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{userName}", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserDto getUser(@PathVariable String userName) {
         log.info("User Name -> " + userName);
         return userService.getUser(userName);
