@@ -33,7 +33,6 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 @Log4j2
 public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     // 400
-
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(final MethodArgumentNotValidException ex, final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
         log.info(ex.getClass().getName());
@@ -93,7 +92,6 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     //
-
     @ExceptionHandler({ MethodArgumentTypeMismatchException.class })
     public ResponseEntity<Object> handleMethodArgumentTypeMismatch(final MethodArgumentTypeMismatchException ex, final WebRequest request) {
         log.info(ex.getClass().getName());
@@ -124,10 +122,16 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
         log.info(ex.getClass().getName());
         log.error(ex.getLocalizedMessage());
         String errorMessage = ex.getLocalizedMessage();
-        if(ex.getLocalizedMessage().contains("PUBLIC.USER(USER_NAME) VALUES 1")){
+        String message="";
+        if(errorMessage.contains("PUBLIC.USER_DETAIL(USER_NAME) VALUES 1")){
             errorMessage = "userName: should be unique.";
+            message = "userName already taken. enter different userName";
         }
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "userName already taken. enter different userName", errorMessage);
+        if(errorMessage.contains("PUBLIC.GROUP_DETAIL(GROUP_NAME) VALUES 1")){
+            errorMessage = "groupName: should be unique.";
+            message = "groupName already exists. Enter new groupName if existing group doesn't suffice.";
+        }
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST,message , errorMessage);
         final List<String> errors = new ArrayList<String>();
         return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
     }

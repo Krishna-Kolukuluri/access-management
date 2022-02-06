@@ -6,7 +6,10 @@ import com.vmware.accessmanagement.model.UserDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface GroupRepository extends JpaRepository<GroupDetail, Long> {
     GroupDetail findGroupDetailByGroupName(String groupName);
+    List<GroupDetail> findAll();
 }

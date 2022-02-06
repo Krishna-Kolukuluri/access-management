@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.Date;
 import java.util.List;
 
@@ -19,15 +20,18 @@ public class GroupDetail {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     Long id;
 
-    @Column(name ="group_name")
+    @NotBlank(message = "groupName is mandatory")
+    @Column(name ="group_name", unique = true)
     String groupName;
 
     @Column(name ="group_description")
     String groupDescription;
 
+    @NotBlank(message = "groupRole is mandatory")
     @Column(name ="group_role")
     String groupRole;
 
+    @NotBlank(message = "groupPermission is mandatory")
     @Column(name ="group_permission")
     String groupPermission;
 
@@ -38,6 +42,19 @@ public class GroupDetail {
         this.groupName = groupName;
         this.groupDescription = groupDescription;
         this.groupRole=groupRole;
-        this.groupPermission = groupPermission;
+        if(groupPermission.equals(GroupPermission.ALL.toString())){
+            this.groupPermission = GroupPermission.ALL.toString();
+        }else if(groupPermission.equals(GroupPermission.READ.toString())){
+            this.groupPermission = GroupPermission.READ.toString();
+        }else if(groupPermission.equals(GroupPermission.WRITE.toString())){
+            this.groupPermission  = GroupPermission.WRITE.toString();
+        }else{
+            this.groupPermission = GroupPermission.NONE.toString();
+        }
+        if(groupRole.equals(GroupRole.ADMIN.toString())){
+            this.groupRole = GroupRole.ADMIN.toString();
+        }else{
+            this.groupRole = GroupRole.NON_ADMIN.toString();
+        }
     }
 }

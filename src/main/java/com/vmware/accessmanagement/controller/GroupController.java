@@ -15,6 +15,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/groups")
@@ -44,5 +46,10 @@ public class GroupController {
         log.info("Group Name -> " + groupName);
         GroupDto groupDto;
         return groupService.getGroupDetail(groupName);
+    }
+
+    @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<GroupDto> getUsers(Map<String, Object> model) {
+        return groupService.getGroups();
     }
 }
