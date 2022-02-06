@@ -1,5 +1,6 @@
 package com.vmware.accessmanagement.controller;
 
+import com.vmware.accessmanagement.dto.CustomMessageDto;
 import com.vmware.accessmanagement.dto.UserDto;
 import com.vmware.accessmanagement.model.UserDetail;
 import com.vmware.accessmanagement.service.UserService;
@@ -57,5 +58,11 @@ public class UserController {
     public UserDto updateUserDetail(@PathVariable String userName, @Valid @RequestBody UserDto userDto){
         log.info("userName: " + userName);
         return userService.updateUser(modelMapper.map(userDto, UserDetail.class));
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{userName}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CustomMessageDto deleteUserDetail(@PathVariable String userName){
+        log.info("userName: " + userName);
+        return userService.deleteUser(userName);
     }
 }

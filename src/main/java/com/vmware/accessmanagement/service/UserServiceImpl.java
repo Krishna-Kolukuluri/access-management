@@ -1,5 +1,6 @@
 package com.vmware.accessmanagement.service;
 
+import com.vmware.accessmanagement.dto.CustomMessageDto;
 import com.vmware.accessmanagement.model.UserDetail;
 import com.vmware.accessmanagement.repository.UserRepository;
 import com.vmware.accessmanagement.dto.UserDto;
@@ -32,7 +33,6 @@ public class UserServiceImpl implements UserService {
         return new UserDto(userRepository.save(userDetail));
     }
 
-    @Transactional
     @Override
     public UserDto updateUser(UserDetail userDetail) {
         UserDetail userDetail1 = userRepository.findUserByUserName(userDetail.getUserName());
@@ -47,6 +47,21 @@ public class UserServiceImpl implements UserService {
         userDetail1.setPassword(userDetail.getPassword());
         UserDto updateUser = new UserDto(userRepository.save(userDetail1));
         return updateUser;
+    }
+
+    @Transactional
+    @Override
+    public CustomMessageDto deleteUser(String userName) {
+        CustomMessageDto customMessageDto = new CustomMessageDto();
+        int count = userRepository.deleteByUserName(userName);
+        if(count >= 1){
+            customMessageDto.setMessage("User found and deleted, number of rows deleted:" + count);
+            customMessageDto.setStatus(true);
+        }else if(count == 0){
+            customMessageDto.setMessage("User not found to deleted, number of rows deleted:" + count);
+            customMessageDto.setStatus(false);
+        }
+        return customMessageDto;
     }
 
     @Override
