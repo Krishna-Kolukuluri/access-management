@@ -113,7 +113,9 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
             log.info(violation.getRootBeanClass().getName() + ":" + violation.getPropertyPath() + ": " + violation.getMessage());
             errors.add(violation.getPropertyPath() + ": " + violation.getMessage());
         }
-
+        if(errors.size() == 0){
+            errors.add(ex.getLocalizedMessage());
+        }
         final ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Data Validation Error", errors);
         return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
     }

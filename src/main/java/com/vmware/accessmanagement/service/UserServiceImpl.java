@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
             customMessageDto.setMessage("User found and deleted, number of rows deleted:" + count);
             customMessageDto.setStatus(true);
         }else if(count == 0){
-            customMessageDto.setMessage("User not found to deleted, number of rows deleted:" + count);
+            customMessageDto.setMessage("User not found to delete, number of rows deleted:" + count);
             customMessageDto.setStatus(false);
         }
         return customMessageDto;

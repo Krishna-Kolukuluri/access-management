@@ -1,5 +1,6 @@
 package com.vmware.accessmanagement.controller;
 
+import com.vmware.accessmanagement.dto.CustomMessageDto;
 import com.vmware.accessmanagement.dto.GroupDto;
 import com.vmware.accessmanagement.dto.UserDto;
 import com.vmware.accessmanagement.model.GroupDetail;
@@ -51,5 +52,17 @@ public class GroupController {
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<GroupDto> getUsers(Map<String, Object> model) {
         return groupService.getGroups();
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/{groupName}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public GroupDto updateUserDetail(@PathVariable String groupName, @Valid @RequestBody GroupDto groupDto){
+        log.info("groupName: " + groupName);
+        return groupService.updateGroup(modelMapper.map(groupDto, GroupDetail.class));
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{groupName}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CustomMessageDto deleteUserDetail(@PathVariable String groupName){
+        log.info("groupName: " + groupName);
+        return groupService.deleteGroup(groupName);
     }
 }
