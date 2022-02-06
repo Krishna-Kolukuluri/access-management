@@ -1,7 +1,7 @@
 package com.vmware.accessmanagement.controller;
 
 import com.vmware.accessmanagement.dto.UserDto;
-import com.vmware.accessmanagement.model.User;
+import com.vmware.accessmanagement.model.UserDetail;
 import com.vmware.accessmanagement.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
@@ -39,7 +39,7 @@ public class UserController {
     @ResponseBody
     public ResponseEntity createUser(@Valid @RequestBody UserDto userDto) {
         try{
-            userService.createUser(modelMapper.map(userDto, User.class));
+            userService.createUser(modelMapper.map(userDto, UserDetail.class));
         }catch(Exception e){
             log.error(e.getMessage());
             throw e;

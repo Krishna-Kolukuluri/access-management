@@ -1,7 +1,8 @@
 package com.vmware.accessmanagement.service;
 
-import com.vmware.accessmanagement.dao.UserRepository;
-import com.vmware.accessmanagement.model.User;
+import com.vmware.accessmanagement.model.GroupRole;
+import com.vmware.accessmanagement.repository.UserRepository;
+import com.vmware.accessmanagement.model.UserDetail;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,12 +33,12 @@ public class UserServiceImplTests {
 
     @Test
     public void test_CreatedUser() throws ParseException {
-        User user = new User();
-        user.setId(1L);
+        UserDetail user = new UserDetail();
+        user.setUserId(1L);
         user.setFirstName("FName");
         user.setLastName("LName");
         user.setUserName("UName");
-        user.setIsAdmin(true);
+        user.setUserRole(GroupRole.ADMIN);
         String dob="31/12/1998";
         Date date=new SimpleDateFormat("dd/MM/yyyy"). parse(dob);
         user.setDob(date);

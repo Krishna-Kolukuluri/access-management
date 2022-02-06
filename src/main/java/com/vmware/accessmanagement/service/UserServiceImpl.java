@@ -1,8 +1,8 @@
 package com.vmware.accessmanagement.service;
 
-import com.vmware.accessmanagement.dao.UserRepository;
+import com.vmware.accessmanagement.model.UserDetail;
+import com.vmware.accessmanagement.repository.UserRepository;
 import com.vmware.accessmanagement.dto.UserDto;
-import com.vmware.accessmanagement.model.User;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.internal.util.Assert;
@@ -26,13 +26,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto createUser(User user) {
-        return new UserDto(userRepository.save(user));
+    public UserDto createUser(UserDetail userDetail) {
+        return new UserDto(userRepository.save(userDetail));
     }
 
     @Override
     public List<UserDto> getUsers() {
-        List<User> users = userRepository.findAll();
+        List<UserDetail> users = userRepository.findAll();
         return users.stream().map(user -> modelMapper.map(user, UserDto.class)).collect(Collectors.toList());
     }
 

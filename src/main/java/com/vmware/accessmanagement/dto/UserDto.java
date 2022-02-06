@@ -1,7 +1,8 @@
 package com.vmware.accessmanagement.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.vmware.accessmanagement.model.User;
+import com.vmware.accessmanagement.model.GroupRole;
+import com.vmware.accessmanagement.model.UserDetail;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,17 +22,17 @@ public class UserDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     private Date dob;
-    private Boolean isAdmin;
+    private String userRole;
     private String address;
     private String password;
 
-    public UserDto(User user){
-        this.id = user.getId();
+    public UserDto(UserDetail user){
+        this.id = user.getUserId();
         this.firstName=user.getFirstName();
         this.lastName=user.getLastName();
         this.userName=user.getUserName();
         this.dob=user.getDob();
-        this.isAdmin=user.getIsAdmin();
+        this.userRole=user.getUserRole().name();
         this.address=user.getAddress();
         this.password=user.getPassword();
     }

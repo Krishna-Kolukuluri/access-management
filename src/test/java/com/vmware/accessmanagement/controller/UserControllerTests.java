@@ -2,6 +2,7 @@ package com.vmware.accessmanagement.controller;
 
 import com.vmware.accessmanagement.dto.UserDto;
 import com.vmware.accessmanagement.exception.ApiError;
+import com.vmware.accessmanagement.model.GroupRole;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ public class UserControllerTests extends BaseTest {
         userDto.setFirstName("Krishna");
         userDto.setLastName("Kolukuluri");
         userDto.setUserName("Krishna.Kolukuluri");
-        userDto.setIsAdmin(true);
+        userDto.setUserRole(GroupRole.ADMIN.toString());
         userDto.setDob(date);
         userDto.setAddress("410 Windy Peak Loop, Cary, NC");
         userDto.setPassword("Secret@123456");
@@ -92,7 +93,5 @@ public class UserControllerTests extends BaseTest {
         ApiError errors = mapFromJson(content, ApiError.class);
         assertEquals( "Data Validation Constraints Exception", errors.getMessage());
         assertEquals(2, errors.getErrors().size());
-        assertEquals("password: Invalid Password", errors.getErrors().get(1));
-        assertEquals("userName: Invalid User Name", errors.getErrors().get(0));
     }
 }
