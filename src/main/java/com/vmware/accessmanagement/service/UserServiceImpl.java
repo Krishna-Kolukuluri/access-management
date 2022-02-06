@@ -6,9 +6,11 @@ import com.vmware.accessmanagement.dto.UserDto;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.internal.util.Assert;
+import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +30,23 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(UserDetail userDetail) {
         return new UserDto(userRepository.save(userDetail));
+    }
+
+    @Transactional
+    @Override
+    public UserDto updateUser(UserDetail userDetail) {
+        UserDetail userDetail1 = userRepository.findUserByUserName(userDetail.getUserName());
+        if(userDetail1 == null){
+            throw new OpenApiResourceNotFoundException("userName not found ::" +  userDetail.getUserName());
+        }
+        userDetail1.setUserRole(userDetail.getUserRole());
+        userDetail1.setAddress(userDetail.getAddress());
+        userDetail1.setDob(userDetail.getDob());
+        userDetail1.setFirstName(userDetail.getFirstName());
+        userDetail1.setLastName(userDetail.getLastName());
+        userDetail1.setPassword(userDetail.getPassword());
+        UserDto updateUser = new UserDto(userRepository.save(userDetail1));
+        return updateUser;
     }
 
     @Override

@@ -40,4 +40,9 @@ public class GroupServiceImpl implements GroupService {
         List<GroupDetail> groups = groupRepository.findAll();
         return groups.stream().map(group -> modelMapper.map(group, GroupDto.class)).collect(Collectors.toList());
     }
+
+    @Override
+    public GroupDto updateGroup(GroupDto groupDto) {
+        return null;
+    }
 }

@@ -38,7 +38,7 @@ public class UserServiceImplTests {
         user.setFirstName("FName");
         user.setLastName("LName");
         user.setUserName("UName");
-        user.setUserRole(GroupRole.ADMIN);
+        user.setUserRole(GroupRole.ADMIN.toString());
         String dob="31/12/1998";
         Date date=new SimpleDateFormat("dd/MM/yyyy"). parse(dob);
         user.setDob(date);

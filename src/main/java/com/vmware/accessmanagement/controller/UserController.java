@@ -53,15 +53,9 @@ public class UserController {
         return userService.getUser(userName);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return errors;
+    @RequestMapping(method = RequestMethod.PUT, value = "/{userName}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public UserDto updateUserDetail(@PathVariable String userName, @Valid @RequestBody UserDto userDto){
+        log.info("userName: " + userName);
+        return userService.updateUser(modelMapper.map(userDto, UserDetail.class));
     }
 }

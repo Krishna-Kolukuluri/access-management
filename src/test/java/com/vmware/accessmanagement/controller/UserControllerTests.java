@@ -59,7 +59,7 @@ public class UserControllerTests extends BaseTest {
         assertEquals(400, status);
         String content = mvcResult.getResponse().getContentAsString();
         ApiError errors = mapFromJson(content, ApiError.class);
-        assertEquals( "Data Validation Constraints Exception", errors.getMessage());
+        assertEquals( "Data Validation Error", errors.getMessage());
         assertEquals(1, errors.getErrors().size());
         assertEquals("userName: Invalid User Name", errors.getErrors().get(0));
     }
@@ -75,7 +75,7 @@ public class UserControllerTests extends BaseTest {
         assertEquals(400, status);
         String content = mvcResult.getResponse().getContentAsString();
         ApiError errors = mapFromJson(content, ApiError.class);
-        assertEquals( "Data Validation Constraints Exception", errors.getMessage());
+        assertEquals( "Data Validation Error", errors.getMessage());
         assertEquals(1, errors.getErrors().size());
         assertEquals("password: Invalid Password", errors.getErrors().get(0));
     }
@@ -91,7 +91,7 @@ public class UserControllerTests extends BaseTest {
         assertEquals(400, status);
         String content = mvcResult.getResponse().getContentAsString();
         ApiError errors = mapFromJson(content, ApiError.class);
-        assertEquals( "Data Validation Constraints Exception", errors.getMessage());
+        assertEquals( "Data Validation Error", errors.getMessage());
         assertEquals(2, errors.getErrors().size());
     }
 }

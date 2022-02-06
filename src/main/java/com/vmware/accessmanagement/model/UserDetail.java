@@ -44,7 +44,7 @@ public class UserDetail {
     Date dob;
 
     @Column(name = "user_role")
-    GroupRole userRole;
+    String userRole;
 
     @Column(name = "address")
     String address;
@@ -58,12 +58,16 @@ public class UserDetail {
     @OneToMany(mappedBy = "userDetail")
     List<UserGroup> groups;
 
-    public UserDetail(String firstName, String lastName, String userName, Date dob, GroupRole userRole, String address, String password) {
+    public UserDetail(String firstName, String lastName, String userName, Date dob, String userRole, String address, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.userName = userName;
         this.dob = dob;
-        this.userRole=userRole;
+        if(userRole.equals(GroupRole.ADMIN.toString())){
+            this.userRole = GroupRole.ADMIN.toString();
+        }else{
+            this.userRole = GroupRole.NON_ADMIN.toString();
+        }
         this.address=address;
         this.password =password;
     }

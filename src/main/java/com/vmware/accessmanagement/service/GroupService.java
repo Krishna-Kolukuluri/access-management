@@ -9,4 +9,5 @@ public interface GroupService {
     GroupDto createGroup(GroupDto groupDto);
     GroupDto getGroupDetail(String groupName);
     List<GroupDto> getGroups();
+    GroupDto updateGroup(GroupDto groupDto);
 }

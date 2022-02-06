@@ -11,5 +11,6 @@ public interface UserService extends FieldValueExists {
     List<UserDto> getUsers();
 
     UserDto createUser(UserDetail user);
+    UserDto updateUser(UserDetail userDetail);
 
 }

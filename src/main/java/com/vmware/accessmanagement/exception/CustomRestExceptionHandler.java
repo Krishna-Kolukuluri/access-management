@@ -36,6 +36,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(final MethodArgumentNotValidException ex, final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
         log.info(ex.getClass().getName());
+        log.info(ex.getLocalizedMessage());
         //
         final List<String> errors = new ArrayList<String>();
         for (final FieldError error : ex.getBindingResult().getFieldErrors()) {
@@ -44,7 +45,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
         for (final ObjectError error : ex.getBindingResult().getGlobalErrors()) {
             errors.add(error.getObjectName() + ": " + error.getDefaultMessage());
         }
-        final ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
+        final ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Data Validation Error", errors);
         return handleExceptionInternal(ex, apiError, headers, apiError.getStatus(), request);
     }
 
@@ -113,7 +114,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
             errors.add(violation.getPropertyPath() + ": " + violation.getMessage());
         }
 
-        final ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Data Validation Constraints Exception", errors);
+        final ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Data Validation Error", errors);
         return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
     }
 
