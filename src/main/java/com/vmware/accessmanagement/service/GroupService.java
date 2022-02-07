@@ -11,6 +11,6 @@ public interface GroupService {
     GroupDto createGroup(GroupDto groupDto);
     GroupUserDto getGroupWithUsers(String groupName);
     List<GroupDto> getGroups();
-    GroupDto updateGroup(GroupDetail groupDetail);
+    GroupDto updateGroup(GroupDto groupDto);
     CustomMessageDto deleteGroup(String groupName);
 }

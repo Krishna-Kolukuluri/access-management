@@ -4,6 +4,7 @@ import com.vmware.accessmanagement.dto.*;
 import com.vmware.accessmanagement.model.*;
 import com.vmware.accessmanagement.repository.GroupRepository;
 import com.vmware.accessmanagement.repository.UserGroupRepository;
+import com.vmware.accessmanagement.repository.UserRepository;
 import lombok.extern.log4j.Log4j2;
 
 import javax.transaction.Transactional;
@@ -16,10 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.swing.*;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +32,9 @@ public class GroupServiceImpl implements GroupService {
 
     @Autowired
     private UserGroupRepository userGroupRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private Validator validator;
@@ -52,27 +53,62 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public List<GroupDto> getGroups() {
         List<GroupDetail> groups = groupRepository.findAll();
-        return groups.stream().map(group -> modelMapper.map(group, GroupDto.class)).collect(Collectors.toList());
+        return groups.stream().map(group -> new GroupDto(group)).collect(Collectors.toList());
     }
 
     @Transactional
     @Override
-    public GroupDto updateGroup(GroupDetail groupDetail) {
-        GroupDetail groupDetail1 = groupRepository.findGroupDetailByGroupName(groupDetail.getGroupName());
-        if(groupDetail1 == null){
-            throw new OpenApiResourceNotFoundException("Group not found ::" +  groupDetail.getGroupName());
+    public GroupDto updateGroup(GroupDto groupDto) {
+        GroupDetail groupDetail = groupRepository.findGroupDetailByGroupName(groupDto.getGroupName());
+        if(groupDetail == null){
+            throw new OpenApiResourceNotFoundException("Group not found ::" +  groupDto.getGroupName());
         }
-        if(!groupDetail.getGroupPermission().equals(groupDetail1.getGroupPermission())){
+        if(!groupDto.getGroupPermission().equals(groupDetail.getGroupPermission())){
             Set<ConstraintViolation<String>> violations = validator.validateValue(String.class,
-                    groupDetail.getGroupPermission(), groupDetail1.getGroupPermission());
+                    groupDto.getGroupPermission(), groupDetail.getGroupPermission());
             throw new ConstraintViolationException("Changing Group permissions not allowed. original: " +
-                                                    groupDetail1.getGroupPermission() + " to updating: " +
-                                                    groupDetail.getGroupPermission(), violations);
+                                                    groupDetail.getGroupPermission() + " to updating: " +
+                    groupDto.getGroupPermission(), violations);
         }
-        groupDetail1.setGroupDescription(groupDetail.getGroupDescription());
-        groupDetail1.setGroupRole(groupDetail.getGroupRole());
-        GroupDto updateDto = new GroupDto(groupRepository.save(groupDetail1));
+        groupDetail = updateUsers(groupDetail, groupDto.getUsers());
+        groupDetail.setGroupDescription(groupDto.getGroupDescription());
+        groupDetail.setGroupRole(groupDto.getGroupRole());
+        GroupDto updateDto = new GroupDto(groupRepository.save(groupDetail));
         return updateDto;
+    }
+
+    private GroupDetail updateUsers(GroupDetail groupDetail, List<UserInGroupDto> userInGroupDtos){
+        UserGroup userGroup;
+        List<UserGroup> existingUsers = groupDetail.getUsers();
+        for(UserInGroupDto userInGroupDto: filterUsers(existingUsers, userInGroupDtos)){
+            userGroup = new UserGroup();
+            UserDetail userDetail = userRepository.findUserByUserName(userInGroupDto.getUserName());
+            userGroup.setUserDetail(userDetail);
+            userGroup.setGroupDetail(groupDetail);
+            userGroupRepository.save(userGroup);
+            groupDetail.getUsers().add(userGroup);
+        }
+
+        return groupDetail;
+    }
+
+    private List<UserInGroupDto> filterUsers(List<UserGroup> existingUsers, List<UserInGroupDto>  userInGroupDtos){
+        List<UserInGroupDto> filteredUsers = new ArrayList<>();
+        if(Objects.nonNull(userInGroupDtos)){
+            HashMap<String, UserGroup> existingUsersGroup = new HashMap<>();
+            for(UserGroup userGroup: existingUsers){
+                existingUsersGroup.put(userGroup.getUserDetail().getUserName(), userGroup);
+            }
+            if(existingUsers.size() ==0){
+                filteredUsers.addAll(userInGroupDtos);
+            }
+            for(UserInGroupDto userInGroupDto: userInGroupDtos){
+                if(!existingUsersGroup.containsKey(userInGroupDto.getUserName())){
+                    filteredUsers.add(userInGroupDto);
+                }
+            }
+        }
+        return filteredUsers;
     }
 
     @Transactional

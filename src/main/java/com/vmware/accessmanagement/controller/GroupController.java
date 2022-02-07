@@ -3,7 +3,6 @@ package com.vmware.accessmanagement.controller;
 import com.vmware.accessmanagement.dto.CustomMessageDto;
 import com.vmware.accessmanagement.dto.GroupDto;
 import com.vmware.accessmanagement.dto.GroupUserDto;
-import com.vmware.accessmanagement.model.GroupDetail;
 import com.vmware.accessmanagement.service.GroupService;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
@@ -54,11 +53,11 @@ public class GroupController {
     @RequestMapping(method = RequestMethod.PUT, value = "/{groupName}", produces = MediaType.APPLICATION_JSON_VALUE)
     public GroupDto updateGroupDetail(@PathVariable String groupName, @Valid @RequestBody GroupDto groupDto){
         log.info("groupName: " + groupName);
-        return groupService.updateGroup(modelMapper.map(groupDto, GroupDetail.class));
+        return groupService.updateGroup(groupDto);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/{groupName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CustomMessageDto deleteUserDetail(@PathVariable String groupName){
+    public CustomMessageDto deleteGroupDetail(@PathVariable String groupName){
         log.info("groupName: " + groupName);
         return groupService.deleteGroup(groupName);
     }
