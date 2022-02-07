@@ -3,7 +3,6 @@ package com.vmware.accessmanagement.dto;
 import com.vmware.accessmanagement.model.GroupDetail;
 import com.vmware.accessmanagement.model.UserGroup;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;

@@ -3,7 +3,6 @@ package com.vmware.accessmanagement.service;
 import com.vmware.accessmanagement.dto.CustomMessageDto;
 import com.vmware.accessmanagement.dto.UserDto;
 import com.vmware.accessmanagement.dto.UserViewDto;
-import com.vmware.accessmanagement.model.UserDetail;
 import com.vmware.accessmanagement.validator.FieldValueExists;
 
 import java.util.List;

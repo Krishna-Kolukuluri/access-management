@@ -5,7 +5,6 @@ import com.vmware.accessmanagement.model.UserDetail;
 import com.vmware.accessmanagement.model.UserGroup;
 import com.vmware.accessmanagement.validator.ValidUserName;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Temporal;

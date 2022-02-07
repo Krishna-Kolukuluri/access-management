@@ -1,8 +1,6 @@
 package com.vmware.accessmanagement.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.vmware.accessmanagement.dto.GroupDto;
-import com.vmware.accessmanagement.dto.UserDto;
 import com.vmware.accessmanagement.encryption.AttributeEncryptor;
 import com.vmware.accessmanagement.validator.ValidPassword;
 import com.vmware.accessmanagement.validator.ValidUserName;
@@ -12,7 +10,6 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 

@@ -15,8 +15,6 @@ import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.*;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
