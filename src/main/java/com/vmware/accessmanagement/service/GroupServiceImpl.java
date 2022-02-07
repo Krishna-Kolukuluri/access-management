@@ -1,14 +1,9 @@
 package com.vmware.accessmanagement.service;
 
-import com.vmware.accessmanagement.dto.CustomMessageDto;
-import com.vmware.accessmanagement.dto.GroupDto;
-import com.vmware.accessmanagement.dto.GroupUserDto;
-import com.vmware.accessmanagement.dto.UserDto;
-import com.vmware.accessmanagement.model.GroupDetail;
-import com.vmware.accessmanagement.model.GroupRole;
-import com.vmware.accessmanagement.model.GroupPermission;
-import com.vmware.accessmanagement.model.UserDetail;
+import com.vmware.accessmanagement.dto.*;
+import com.vmware.accessmanagement.model.*;
 import com.vmware.accessmanagement.repository.GroupRepository;
+import com.vmware.accessmanagement.repository.UserGroupRepository;
 import lombok.extern.log4j.Log4j2;
 
 import javax.transaction.Transactional;
@@ -23,17 +18,22 @@ import javax.swing.*;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @Log4j2
 public class GroupServiceImpl implements GroupService {
+    private static final String ADMIN_ALL = "ADMIN_ALL";
     @Autowired
     private ModelMapper modelMapper;
 
     @Autowired
     private GroupRepository groupRepository;
+
+    @Autowired
+    private UserGroupRepository userGroupRepository;
 
     @Autowired
     private Validator validator;
@@ -55,6 +55,7 @@ public class GroupServiceImpl implements GroupService {
         return groups.stream().map(group -> modelMapper.map(group, GroupDto.class)).collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public GroupDto updateGroup(GroupDetail groupDetail) {
         GroupDetail groupDetail1 = groupRepository.findGroupDetailByGroupName(groupDetail.getGroupName());
@@ -77,7 +78,17 @@ public class GroupServiceImpl implements GroupService {
     @Transactional
     @Override
     public CustomMessageDto deleteGroup(String groupName) {
+
         CustomMessageDto customMessageDto = new CustomMessageDto();
+        if(groupName.equals(ADMIN_ALL)){
+            customMessageDto.setMessage("ADMIN_ALL default group can't be deleted.");
+            customMessageDto.setStatus(false);
+            return customMessageDto;
+        }
+        GroupDetail group = groupRepository.findGroupDetailByGroupName(groupName);
+        if(Objects.nonNull(group)){
+            userGroupRepository.deleteByGroupID(group.getId());
+        }
         int count = groupRepository.deleteByGroupName(groupName);
         if(count >= 1){
             customMessageDto.setMessage("Group found and deleted, number of rows deleted:" + count);

@@ -13,16 +13,16 @@ import javax.persistence.*;
 @Setter
 public class UserGroup {
     @Id
-    @Column(name ="user_group_id")
+    @Column(name ="id")
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name="userDetail_id")
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name="user_id")
     private UserDetail userDetail;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name="groupDetail_id")
+    @ManyToOne()
+    @JoinColumn(name="group_id")
     private GroupDetail groupDetail;
 
 }

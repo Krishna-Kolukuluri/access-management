@@ -35,7 +35,7 @@ public class GroupDetail {
     @Column(name ="group_permission")
     String groupPermission;
 
-    @OneToMany(mappedBy = "groupDetail")
+    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "groupDetail")
     List<UserGroup> users;
 
     public GroupDetail(String groupName, String groupDescription,
