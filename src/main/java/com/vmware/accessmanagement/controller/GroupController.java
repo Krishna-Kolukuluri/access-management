@@ -21,8 +21,6 @@ import java.util.List;
 @Log4j2
 @Validated
 public class GroupController {
-    @Autowired
-    private ModelMapper modelMapper;
 
     @Autowired
     private GroupService groupService;

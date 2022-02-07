@@ -4,6 +4,7 @@ import com.vmware.accessmanagement.dto.CustomMessageDto;
 import com.vmware.accessmanagement.dto.GroupDto;
 import com.vmware.accessmanagement.dto.UserViewDto;
 import com.vmware.accessmanagement.model.GroupDetail;
+import com.vmware.accessmanagement.model.GroupRole;
 import com.vmware.accessmanagement.model.UserDetail;
 import com.vmware.accessmanagement.model.UserGroup;
 import com.vmware.accessmanagement.repository.GroupRepository;
@@ -19,14 +20,13 @@ import org.springframework.stereotype.Service;
 
 import javax.swing.*;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Log4j2
 public class UserServiceImpl implements UserService {
+    private static final String ADMIN_ALL ="ADMIN_ALL";
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -47,6 +47,12 @@ public class UserServiceImpl implements UserService {
     public UserViewDto createUser(UserDto userDto) {
         UserDetail inputUserDetail = modelMapper.map(userDto, UserDetail.class);
         inputUserDetail.setGroups(new ArrayList<UserGroup>());
+        if(Objects.isNull(userDto.getGroups()) && inputUserDetail.getUserRole().equals(GroupRole.ADMIN.toString())){
+            GroupDto groupDto = new GroupDto();
+            groupDto.setGroupName(ADMIN_ALL);
+            userDto.setGroups(new ArrayList<>());
+            userDto.getGroups().add(groupDto);
+        }
         UserDetail userDetail = userRepository.save(updateGroups(inputUserDetail, userDto.getGroups()));
         return new UserViewDto(userDetail);
     }
@@ -58,6 +64,27 @@ public class UserServiceImpl implements UserService {
         if(userDetail == null){
             throw new OpenApiResourceNotFoundException("User not found ::" +  userDto.getUserName());
         }
+        List<UserGroup> deleteGroups = new ArrayList<>();
+        if(!userDetail.getUserRole().equals(userDto.getUserRole())){
+            GroupDto groupDto = new GroupDto();
+            if(userDto.getUserRole().equals(GroupRole.ADMIN.toString())){
+                groupDto.setGroupName(ADMIN_ALL);
+                if(Objects.isNull(userDto.getGroups())){
+                    userDto.setGroups(new ArrayList<>());
+                }
+                userDto.getGroups().add(groupDto);
+            }else{
+                List<UserGroup> userGroups = new ArrayList<UserGroup>(userDetail.getGroups());
+                //Collections.copy(userGroups, userDetail.getGroups());
+                for(UserGroup userGroup: userGroups){
+                    if(userGroup.getGroupDetail().getGroupRole().equals(GroupRole.ADMIN.toString())){
+                        deleteGroups.add(userGroup);
+                        userDetail.getGroups().remove(userGroup);
+                    }
+                }
+            }
+        }
+        deleteGroupRelation(deleteGroups);
         userDetail = updateGroups(userDetail, userDto.getGroups());
         userDetail.setUserRole(userDto.getUserRole());
         userDetail.setAddress(userDto.getAddress());
@@ -69,6 +96,12 @@ public class UserServiceImpl implements UserService {
         UserViewDto updateUser = new UserViewDto(userDetail);
 
         return updateUser;
+    }
+
+    private void  deleteGroupRelation(List<UserGroup> deleteGroups){
+        for(UserGroup userGroup: deleteGroups){
+            userGroupRepository.deleteByGroupID(userGroup.getGroupDetail().getId());
+        }
     }
 
     private UserDetail updateGroups(UserDetail userDetail, List<GroupDto> groupDtos){
