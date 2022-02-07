@@ -58,7 +58,7 @@ public class GroupServiceImpl implements GroupService {
 
     @Transactional
     @Override
-    public GroupDto updateGroup(GroupDto groupDto) {
+    public GroupUserDto updateGroup(GroupUserDto groupDto) {
         GroupDetail groupDetail = groupRepository.findGroupDetailByGroupName(groupDto.getGroupName());
         if(groupDetail == null){
             throw new OpenApiResourceNotFoundException("Group not found ::" +  groupDto.getGroupName());
@@ -73,7 +73,7 @@ public class GroupServiceImpl implements GroupService {
         groupDetail = updateUsers(groupDetail, groupDto.getUsers());
         groupDetail.setGroupDescription(groupDto.getGroupDescription());
         groupDetail.setGroupRole(groupDto.getGroupRole());
-        GroupDto updateDto = new GroupDto(groupRepository.save(groupDetail));
+        GroupUserDto updateDto = new GroupUserDto(groupRepository.save(groupDetail));
         return updateDto;
     }
 
@@ -101,12 +101,14 @@ public class GroupServiceImpl implements GroupService {
             }
             if(existingUsers.size() ==0){
                 filteredUsers.addAll(userInGroupDtos);
-            }
-            for(UserInGroupDto userInGroupDto: userInGroupDtos){
-                if(!existingUsersGroup.containsKey(userInGroupDto.getUserName())){
-                    filteredUsers.add(userInGroupDto);
+            }else{
+                for(UserInGroupDto userInGroupDto: userInGroupDtos){
+                    if(!existingUsersGroup.containsKey(userInGroupDto.getUserName())){
+                        filteredUsers.add(userInGroupDto);
+                    }
                 }
             }
+
         }
         return filteredUsers;
     }

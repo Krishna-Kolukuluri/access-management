@@ -8,12 +8,13 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class GroupUserDto extends GroupDto {
-    List<UserViewDto> userGroups;
+    List<UserInGroupDto> users;
 
     public GroupUserDto(GroupDetail groupDetail){
         //this.id = groupDetail.getId();
@@ -21,21 +22,17 @@ public class GroupUserDto extends GroupDto {
         this.groupDescription=groupDetail.getGroupDescription();
         this.groupRole=groupDetail.getGroupRole();
         this.groupPermission = groupDetail.getGroupPermission();
-        List<UserViewDto> userDtos = new ArrayList<>();
-        if(groupDetail.getUsers() != null){
-            for(UserGroup userGroup : groupDetail.getUsers()){
-                if(userGroup != null) {
-                    UserDto userDto = new UserDto();
-                    userDto.setUserName(userGroup.getUserDetail().getUserName());
-                    userDto.setAddress(userGroup.getUserDetail().getAddress());
-                    userDto.setDob(userGroup.getUserDetail().getDob());
-                    userDto.setUserRole(userGroup.getUserDetail().getUserRole());
-                    userDto.setFirstName(userGroup.getUserDetail().getFirstName());
-                    userDto.setLastName(userGroup.getUserDetail().getLastName());
-                    userDtos.add(userDto);
-                }
+        List<UserInGroupDto>  userDtos = new ArrayList<>();
+        if(Objects.nonNull(groupDetail.getUsers())){
+            for(UserGroup userGroup: groupDetail.getUsers()){
+                UserInGroupDto userDto = new UserInGroupDto();
+                userDto.setUserName(userGroup.getUserDetail().getUserName());
+                userDto.setFirstName(userGroup.getUserDetail().getFirstName());
+                userDto.setLastName(userGroup.getUserDetail().getLastName());
+                userDto.setUserRole(userGroup.getUserDetail().getUserRole());
+                userDtos.add(userDto);
             }
         }
-        this.userGroups = userDtos;
+        this.users = userDtos;
     }
 }

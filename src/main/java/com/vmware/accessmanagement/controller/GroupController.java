@@ -49,9 +49,9 @@ public class GroupController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{groupName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public GroupDto updateGroupDetail(@PathVariable String groupName, @Valid @RequestBody GroupDto groupDto){
+    public GroupUserDto updateGroupDetail(@PathVariable String groupName, @Valid @RequestBody GroupUserDto groupUserDto){
         log.info("groupName: " + groupName);
-        return groupService.updateGroup(groupDto);
+        return groupService.updateGroup(groupUserDto);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/{groupName}", produces = MediaType.APPLICATION_JSON_VALUE)
