@@ -12,9 +12,11 @@ import java.util.Objects;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class GroupUserDto extends GroupDto {
     List<UserInGroupDto> users;
+
+    public GroupUserDto(){
+    }
 
     public GroupUserDto(GroupDetail groupDetail){
         //this.id = groupDetail.getId();

@@ -47,6 +47,9 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public GroupUserDto getGroupWithUsers(String groupName) {
         GroupDetail groupDetail= groupRepository.findGroupDetailByGroupName(groupName);
+        if(Objects.isNull(groupDetail)){
+            return new GroupUserDto();
+        }
         return new GroupUserDto(groupDetail);
     }
 

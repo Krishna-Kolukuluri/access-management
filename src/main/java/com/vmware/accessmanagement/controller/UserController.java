@@ -35,15 +35,8 @@ public class UserController {
     }
 
     @PostMapping(value = "/createUser", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity createUser(@Valid @RequestBody UserDto userDto) {
-        try{
-            userService.createUser(userDto);
-        }catch(Exception e){
-            log.error(e.getMessage());
-            throw e;
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body("Created User with User Name: '" + userDto.getUserName() +"'");
+    public UserViewDto createUser(@Valid @RequestBody UserDto userDto) {
+        return userService.createUser(userDto);
     }
 
     @GetMapping(value = "/{userName}", produces = MediaType.APPLICATION_JSON_VALUE)

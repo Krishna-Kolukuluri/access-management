@@ -39,6 +39,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserViewDto getUserWithGroups(String userName) {
         UserDetail userDetail = userRepository.findUserByUserName(userName);
+        if(Objects.isNull(userDetail)){
+            return new UserViewDto();
+        }
         return new UserViewDto(userDetail);
     }
 
@@ -108,11 +111,14 @@ public class UserServiceImpl implements UserService {
         UserGroup userGroup;
         List<UserGroup> existingGroups =userDetail.getGroups();
         for(GroupDto groupDto: filterGroups(existingGroups, groupDtos)){
-            userGroup = new UserGroup();
-            userGroup.setGroupDetail(groupRepository.findGroupDetailByGroupName(groupDto.getGroupName()));
-            userGroup.setUserDetail(userDetail);
-            userGroupRepository.save(userGroup);
-            userDetail.getGroups().add(userGroup);
+            GroupDetail groupDetail = groupRepository.findGroupDetailByGroupName(groupDto.getGroupName());
+            if(Objects.nonNull(groupDetail)){
+                userGroup = new UserGroup();
+                userGroup.setGroupDetail(groupDetail);
+                userGroup.setUserDetail(userDetail);
+                userGroupRepository.save(userGroup);
+                userDetail.getGroups().add(userGroup);
+            }
         }
         return userDetail;
     }
@@ -156,9 +162,11 @@ public class UserServiceImpl implements UserService {
     private int deleteGroupRelation(String userName){
         UserDetail userDetail = userRepository.findUserByUserName(userName);
         int count = 0;
-        for(UserGroup userGroup: userDetail.getGroups()){
-            userGroupRepository.deleteById(userGroup.getId());
-            count++;
+        if(Objects.nonNull(userDetail)){
+            for(UserGroup userGroup: userDetail.getGroups()){
+                userGroupRepository.deleteById(userGroup.getId());
+                count++;
+            }
         }
         return count;
     }

@@ -18,7 +18,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class UserViewDto {
     @NotBlank(message = "firstName is mandatory")
     String firstName;
@@ -33,6 +32,10 @@ public class UserViewDto {
     String userRole;
     String address;
     List<GroupDto> groups;
+
+    public UserViewDto(){
+
+    }
 
     public UserViewDto(UserDetail user){
         //this.id = user.getUserId();
