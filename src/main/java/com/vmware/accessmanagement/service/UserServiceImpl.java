@@ -86,17 +86,19 @@ public class UserServiceImpl implements UserService {
 
     private List<GroupDto> filterGroups(List<UserGroup> existingGroups, List<GroupDto> groupDtos){
         List<GroupDto> filterGroups = new ArrayList<>();
-        if(existingGroups.size() == 0){
-            filterGroups.addAll(groupDtos);
-            return filterGroups;
-        }
-        HashMap<String, UserGroup> existingGroupsHash = new HashMap<>();
-        for(UserGroup userGroup: existingGroups){
-            existingGroupsHash.put(userGroup.getGroupDetail().getGroupName(), userGroup);
-        }
-        for(GroupDto groupDto: groupDtos){
-            if(!existingGroupsHash.containsKey(groupDto.getGroupName())){
-                filterGroups.add(groupDto);
+        if(groupDtos != null){
+            HashMap<String, UserGroup> existingGroupsHash = new HashMap<>();
+            for(UserGroup userGroup: existingGroups){
+                existingGroupsHash.put(userGroup.getGroupDetail().getGroupName(), userGroup);
+            }
+            if(existingGroups.size() == 0){
+                filterGroups.addAll(groupDtos);
+                return filterGroups;
+            }
+            for(GroupDto groupDto: groupDtos){
+                if(!existingGroupsHash.containsKey(groupDto.getGroupName())){
+                    filterGroups.add(groupDto);
+                }
             }
         }
         return filterGroups;
@@ -106,6 +108,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public CustomMessageDto deleteUser(String userName) {
         CustomMessageDto customMessageDto = new CustomMessageDto();
+        deleteGroupRelation(userName);
         int count = userRepository.deleteByUserName(userName);
         if(count >= 1){
             customMessageDto.setMessage("User found and deleted, number of rows deleted:" + count);
@@ -115,6 +118,16 @@ public class UserServiceImpl implements UserService {
             customMessageDto.setStatus(false);
         }
         return customMessageDto;
+    }
+
+    private int deleteGroupRelation(String userName){
+        UserDetail userDetail = userRepository.findUserByUserName(userName);
+        int count = 0;
+        for(UserGroup userGroup: userDetail.getGroups()){
+            userGroupRepository.deleteById(userGroup.getId());
+            count++;
+        }
+        return count;
     }
 
     @Override
