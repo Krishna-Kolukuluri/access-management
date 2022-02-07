@@ -2,6 +2,7 @@ package com.vmware.accessmanagement.service;
 
 import com.vmware.accessmanagement.dto.CustomMessageDto;
 import com.vmware.accessmanagement.dto.GroupDto;
+import com.vmware.accessmanagement.dto.GroupUserDto;
 import com.vmware.accessmanagement.dto.UserDto;
 import com.vmware.accessmanagement.model.GroupDetail;
 import com.vmware.accessmanagement.model.GroupRole;
@@ -43,8 +44,9 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public GroupDto getGroupDetail(String groupName) {
-        return new GroupDto(groupRepository.findGroupDetailByGroupName(groupName));
+    public GroupUserDto getGroupWithUsers(String groupName) {
+        GroupDetail groupDetail= groupRepository.findGroupDetailByGroupName(groupName);
+        return new GroupUserDto(groupDetail);
     }
 
     @Override

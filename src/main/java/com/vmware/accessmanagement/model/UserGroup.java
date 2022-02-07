@@ -17,18 +17,12 @@ public class UserGroup {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     Long id;
 
-    @Column(name ="user_id")
-    Long userId;
-
-    @Column(name ="group_id")
-    Long groupId;
-
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name="userDetail_id")
     private UserDetail userDetail;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name="groupDetail_id")
-    private UserDetail groupDetail;
+    private GroupDetail groupDetail;
 
 }

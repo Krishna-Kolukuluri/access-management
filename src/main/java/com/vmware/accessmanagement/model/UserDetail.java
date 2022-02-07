@@ -1,6 +1,8 @@
 package com.vmware.accessmanagement.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.vmware.accessmanagement.dto.GroupDto;
+import com.vmware.accessmanagement.dto.UserDto;
 import com.vmware.accessmanagement.encryption.AttributeEncryptor;
 import com.vmware.accessmanagement.validator.ValidPassword;
 import com.vmware.accessmanagement.validator.ValidUserName;
@@ -10,6 +12,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -58,7 +61,8 @@ public class UserDetail {
     @OneToMany(mappedBy = "userDetail")
     List<UserGroup> groups;
 
-    public UserDetail(String firstName, String lastName, String userName, Date dob, String userRole, String address, String password) {
+/*    public UserDetail(String firstName, String lastName, String userName,
+                      Date dob, String userRole, String address, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.userName = userName;
@@ -70,5 +74,21 @@ public class UserDetail {
         }
         this.address=address;
         this.password =password;
+    }*/
+    public UserDetail(UserDetail user) {
+        if(user.getUserRole().equals(GroupRole.ADMIN.toString())){
+            this.userRole = GroupRole.ADMIN.toString();
+        }else{
+            this.userRole = GroupRole.NON_ADMIN.toString();
+        }
+        this.userId = user.getUserId();
+        this.firstName=user.getFirstName();
+        this.lastName=user.getLastName();
+        this.userName=user.getUserName();
+        this.dob=user.getDob();
+        this.userRole=user.getUserRole();
+        this.address=user.getAddress();
+        this.password=user.getPassword();
+        this.groups = user.getGroups();
     }
 }

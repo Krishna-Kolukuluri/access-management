@@ -6,8 +6,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name ="GroupDetail")
@@ -36,9 +36,10 @@ public class GroupDetail {
     String groupPermission;
 
     @OneToMany(mappedBy = "groupDetail")
-    List<UserGroup> userGroups;
+    List<UserGroup> users;
 
-    public GroupDetail(String groupName, String groupDescription, String groupRole, String groupPermission) {
+    public GroupDetail(String groupName, String groupDescription,
+                       String groupRole, String groupPermission) {
         this.groupName = groupName;
         this.groupDescription = groupDescription;
         this.groupRole=groupRole;
@@ -56,5 +57,18 @@ public class GroupDetail {
         }else{
             this.groupRole = GroupRole.NON_ADMIN.toString();
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GroupDetail)) return false;
+        GroupDetail that = (GroupDetail) o;
+        return getGroupName().equals(that.getGroupName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getGroupName());
     }
 }

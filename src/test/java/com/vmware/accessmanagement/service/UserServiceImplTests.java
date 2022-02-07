@@ -44,7 +44,7 @@ public class UserServiceImplTests {
         user.setDob(date);
         user.setAddress("XXXXXXX");
         when(userRepository.save(user)).thenReturn(user);
-        userService.createUser(user);
+        //userService.createUser(user);
         verify(userRepository, times(1)).save(any());
     }
 

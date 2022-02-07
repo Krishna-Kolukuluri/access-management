@@ -1,7 +1,13 @@
 package com.vmware.accessmanagement.service;
 
 import com.vmware.accessmanagement.dto.CustomMessageDto;
+import com.vmware.accessmanagement.dto.GroupDto;
+import com.vmware.accessmanagement.dto.UserViewDto;
+import com.vmware.accessmanagement.model.GroupDetail;
 import com.vmware.accessmanagement.model.UserDetail;
+import com.vmware.accessmanagement.model.UserGroup;
+import com.vmware.accessmanagement.repository.GroupRepository;
+import com.vmware.accessmanagement.repository.UserGroupRepository;
 import com.vmware.accessmanagement.repository.UserRepository;
 import com.vmware.accessmanagement.dto.UserDto;
 import lombok.extern.log4j.Log4j2;
@@ -11,7 +17,10 @@ import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.*;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,32 +30,76 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    GroupRepository groupRepository;
+    @Autowired
+    UserGroupRepository userGroupRepository;
+    @Autowired
     private ModelMapper modelMapper;
 
     @Override
-    public UserDto getUser(String userName) {
-        return new UserDto(userRepository.findUserByUserName(userName));
+    public UserViewDto getUserWithGroups(String userName) {
+        UserDetail userDetail = userRepository.findUserByUserName(userName);
+        return new UserViewDto(userDetail);
     }
 
+    @Transactional
     @Override
-    public UserDto createUser(UserDetail userDetail) {
-        return new UserDto(userRepository.save(userDetail));
+    public UserViewDto createUser(UserDto userDto) {
+        UserDetail inputUserDetail = modelMapper.map(userDto, UserDetail.class);
+        inputUserDetail.setGroups(new ArrayList<UserGroup>());
+        UserDetail userDetail = userRepository.save(updateGroups(inputUserDetail, userDto.getGroups()));
+        return new UserViewDto(userDetail);
     }
 
+    @Transactional
     @Override
-    public UserDto updateUser(UserDetail userDetail) {
-        UserDetail userDetail1 = userRepository.findUserByUserName(userDetail.getUserName());
-        if(userDetail1 == null){
-            throw new OpenApiResourceNotFoundException("userName not found ::" +  userDetail.getUserName());
+    public UserViewDto updateUser(UserDto userDto) {
+        UserDetail userDetail = userRepository.findUserByUserName(userDto.getUserName());
+        if(userDetail == null){
+            throw new OpenApiResourceNotFoundException("User not found ::" +  userDto.getUserName());
         }
-        userDetail1.setUserRole(userDetail.getUserRole());
-        userDetail1.setAddress(userDetail.getAddress());
-        userDetail1.setDob(userDetail.getDob());
-        userDetail1.setFirstName(userDetail.getFirstName());
-        userDetail1.setLastName(userDetail.getLastName());
-        userDetail1.setPassword(userDetail.getPassword());
-        UserDto updateUser = new UserDto(userRepository.save(userDetail1));
+        userDetail = updateGroups(userDetail, userDto.getGroups());
+        userDetail.setUserRole(userDto.getUserRole());
+        userDetail.setAddress(userDto.getAddress());
+        userDetail.setDob(userDto.getDob());
+        userDetail.setFirstName(userDto.getFirstName());
+        userDetail.setLastName(userDto.getLastName());
+        userDetail.setPassword(userDto.getPassword());
+        userRepository.save(userDetail);
+        UserViewDto updateUser = new UserViewDto(userDetail);
+
         return updateUser;
+    }
+
+    private UserDetail updateGroups(UserDetail userDetail, List<GroupDto> groupDtos){
+        UserGroup userGroup;
+        List<UserGroup> existingGroups =userDetail.getGroups();
+        for(GroupDto groupDto: filterGroups(existingGroups, groupDtos)){
+            userGroup = new UserGroup();
+            userGroup.setGroupDetail(groupRepository.findGroupDetailByGroupName(groupDto.getGroupName()));
+            userGroup.setUserDetail(userDetail);
+            userGroupRepository.save(userGroup);
+            userDetail.getGroups().add(userGroup);
+        }
+        return userDetail;
+    }
+
+    private List<GroupDto> filterGroups(List<UserGroup> existingGroups, List<GroupDto> groupDtos){
+        List<GroupDto> filterGroups = new ArrayList<>();
+        if(existingGroups.size() == 0){
+            filterGroups.addAll(groupDtos);
+            return filterGroups;
+        }
+        HashMap<String, UserGroup> existingGroupsHash = new HashMap<>();
+        for(UserGroup userGroup: existingGroups){
+            existingGroupsHash.put(userGroup.getGroupDetail().getGroupName(), userGroup);
+        }
+        for(GroupDto groupDto: groupDtos){
+            if(!existingGroupsHash.containsKey(groupDto.getGroupName())){
+                filterGroups.add(groupDto);
+            }
+        }
+        return filterGroups;
     }
 
     @Transactional
@@ -65,9 +118,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getUsers() {
+    public List<UserViewDto> getUsers() {
         List<UserDetail> users = userRepository.findAll();
-        return users.stream().map(user -> modelMapper.map(user, UserDto.class)).collect(Collectors.toList());
+        return users.stream().map(user -> modelMapper.map(user, UserViewDto.class)).collect(Collectors.toList());
     }
 
     @Override
