@@ -6,8 +6,8 @@
                     pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%C{1.}}{bright,yellow}: %msg%n%throwable" />
         </Console>
         <RollingFile name="RollingFile"
-                     fileName="C:/Users/krish/IdeaProjects/vmware/access-management/logs/access-management.log"
-                     filePattern="C:/Users/krish/IdeaProjects/vmware/access-management/logs/$${date:yyyy-MM}/access-management_%d{dd-MMMM-yyyy}-%i.log.gz">
+                     fileName="C:/Users/krish/IdeaProjects/access-management/logs/access-management.log"
+                     filePattern="C:/Users/krish/IdeaProjects/access-management/logs/$${date:yyyy-MM}/access-management_%d{dd-MMMM-yyyy}-%i.log.gz">
             <PatternLayout>
                 <pattern>%d %p %C{1.} [%t] %m%n</pattern>
             </PatternLayout>
@@ -26,6 +26,6 @@
             <AppenderRef ref="Console" />
             <AppenderRef ref="RollingFile" />
         </Root>
-        <Logger name="com.vmware.accessmanagement" level="trace"></Logger>
+        <Logger name="com.vmware.accessmanagement" level="info"></Logger>
     </Loggers>
 </Configuration>
