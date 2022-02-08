@@ -1,0 +1,14 @@
+version: '2'
+services:
+  ap-api:
+    container_name: access-management-server
+    build:
+      dockerfile: Dockerfile
+    image: access-management-server:latest
+    ports:
+      - 8080:8080
+    networks:
+      - am-api-network
+networks:
+  am-api-network:
+    driver: bridge
