@@ -8,6 +8,7 @@ import com.vmware.accessmanagement.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Log4j2
 @Transactional
+@Tag("Integration")
 public class UserControllerTest extends BaseTest {
     private static UserDto userDto;
 

@@ -10,6 +10,7 @@ import com.vmware.accessmanagement.repository.UserGroupRepository;
 import com.vmware.accessmanagement.repository.UserRepository;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -28,6 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @Log4j2
+@Tag("Unit")
 public class UserServiceImplTests {
 
     @InjectMocks
