@@ -1,14 +1,14 @@
 package com.vmware.accessmanagement.controller;
 
-import com.vmware.accessmanagement.dto.CustomMessageDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vmware.accessmanagement.dto.ApiResponseDto;
 import com.vmware.accessmanagement.dto.UserDto;
 import com.vmware.accessmanagement.dto.UserViewDto;
-import com.vmware.accessmanagement.model.UserDetail;
 import com.vmware.accessmanagement.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,7 +25,8 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private UserService userService;
-
+    @Autowired
+    private ObjectMapper objectMapper;
     @Autowired
     private ModelMapper modelMapper;
 
@@ -35,8 +36,16 @@ public class UserController {
     }
 
     @PostMapping(value = "/createUser", produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserViewDto createUser(@Valid @RequestBody UserDto userDto) {
-        return userService.createUser(userDto);
+    public ResponseEntity createUser(@Valid @RequestBody UserDto userDto) throws JsonProcessingException {
+        ApiResponseDto  apiResponseDto = new ApiResponseDto();
+        try{
+            apiResponseDto = userService.createUser(userDto);
+        }catch(Exception e){
+            log.error(e.getMessage());
+            throw e;
+        }
+        return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
+
     }
 
     @GetMapping(value = "/{userName}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -46,15 +55,16 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{userName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserViewDto updateUserDetail(@PathVariable String userName, @Valid @RequestBody UserDto userDto){
+    public UserViewDto updateUserDetail(@PathVariable String userName, @Valid @RequestBody UserDto userDto) throws JsonProcessingException {
         log.info("userName: " + userName);
-        userService.updateUser(userDto);
-        return userService.getUserWithGroups(userName);
+        return userService.updateUserAndUserGroups(userDto);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/{userName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CustomMessageDto deleteUserDetail(@PathVariable String userName){
+    public ResponseEntity deleteUserDetail(@PathVariable String userName) throws JsonProcessingException {
         log.info("userName: " + userName);
-        return userService.deleteUser(userName);
+        ApiResponseDto  apiResponseDto = userService.deleteUser(userName);
+
+        return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
     }
 }

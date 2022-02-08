@@ -1,11 +1,12 @@
 package com.vmware.accessmanagement.controller;
 
-import com.vmware.accessmanagement.dto.CustomMessageDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vmware.accessmanagement.dto.ApiResponseDto;
 import com.vmware.accessmanagement.dto.GroupDto;
 import com.vmware.accessmanagement.dto.GroupUserDto;
 import com.vmware.accessmanagement.service.GroupService;
 import lombok.extern.log4j.Log4j2;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,16 +26,20 @@ public class GroupController {
     @Autowired
     private GroupService groupService;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     @PostMapping(value = "/createGroup", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity createGroup(@Valid @RequestBody GroupDto groupDto) {
+    public ResponseEntity createGroup(@Valid @RequestBody GroupDto groupDto) throws JsonProcessingException {
+        ApiResponseDto apiResponseDto;
         try{
-            groupService.createGroup(groupDto);
+            apiResponseDto = groupService.createGroup(groupDto);
         }catch(Exception e){
             log.error(e.getMessage());
             throw e;
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body("Created Group with GroupName: '" + groupDto.getGroupName() +"'");
+        return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
     }
 
     @GetMapping(value = "/{groupName}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -49,14 +54,17 @@ public class GroupController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{groupName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public GroupUserDto updateGroupDetail(@PathVariable String groupName, @Valid @RequestBody GroupUserDto groupUserDto){
+    public ResponseEntity updateGroupDetail(@PathVariable String groupName, @Valid @RequestBody GroupUserDto groupUserDto) throws JsonProcessingException {
         log.info("groupName: " + groupName);
-        return groupService.updateGroup(groupUserDto);
+        ApiResponseDto apiResponseDto = groupService.updateGroup(groupUserDto);
+        return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/{groupName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CustomMessageDto deleteGroupDetail(@PathVariable String groupName){
+    @ResponseBody
+    public ResponseEntity deleteGroupDetail(@PathVariable String groupName) throws JsonProcessingException {
         log.info("groupName: " + groupName);
-        return groupService.deleteGroup(groupName);
+        ApiResponseDto apiResponseDto = groupService.deleteGroup(groupName);
+        return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
     }
 }

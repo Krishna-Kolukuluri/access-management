@@ -126,16 +126,15 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
         log.error(ex.getLocalizedMessage());
         String errorMessage = ex.getLocalizedMessage();
         String message="";
-        if(errorMessage.contains("PUBLIC.USER_DETAIL(USER_NAME) VALUES 1")){
+        if(errorMessage.contains("PUBLIC.USER_DETAIL(USER_NAME)")){
             errorMessage = "userName: should be unique.";
             message = "userName already taken. enter different userName";
         }
-        if(errorMessage.contains("PUBLIC.GROUP_DETAIL(GROUP_NAME) VALUES 1")){
+        if(errorMessage.contains("PUBLIC.GROUP_DETAIL(GROUP_NAME)")){
             errorMessage = "groupName: should be unique.";
-            message = "groupName already exists. Enter new groupName if existing group doesn't suffice.";
+            message = "groupName already exists.";
         }
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST,message , errorMessage);
-        final List<String> errors = new ArrayList<String>();
         return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
     }
 

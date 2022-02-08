@@ -1,6 +1,6 @@
 package com.vmware.accessmanagement.service;
 
-import com.vmware.accessmanagement.dto.CustomMessageDto;
+import com.vmware.accessmanagement.dto.ApiResponseDto;
 import com.vmware.accessmanagement.dto.GroupDto;
 import com.vmware.accessmanagement.dto.UserViewDto;
 import com.vmware.accessmanagement.model.GroupDetail;
@@ -16,6 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.internal.util.Assert;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -29,9 +30,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    GroupRepository groupRepository;
+    private GroupRepository groupRepository;
     @Autowired
-    UserGroupRepository userGroupRepository;
+    private UserGroupRepository userGroupRepository;
     @Autowired
     private ModelMapper modelMapper;
 
@@ -46,7 +47,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserViewDto createUser(UserDto userDto) {
+    public ApiResponseDto createUser(UserDto userDto) {
         UserDetail inputUserDetail = modelMapper.map(userDto, UserDetail.class);
         inputUserDetail.setGroups(new ArrayList<UserGroup>());
         if(Objects.isNull(userDto.getGroups()) && inputUserDetail.getUserRole().equals(GroupRole.ADMIN.toString())){
@@ -55,13 +56,26 @@ public class UserServiceImpl implements UserService {
             userDto.setGroups(new ArrayList<>());
             userDto.getGroups().add(groupDto);
         }
-        UserDetail userDetail = userRepository.save(updateGroups(inputUserDetail, userDto.getGroups()));
-        return new UserViewDto(userDetail);
+        UserDetail userDetail = updateGroups(inputUserDetail, userDto.getGroups());
+        if(Objects.isNull(userDetail)){
+           return new ApiResponseDto(HttpStatus.CONFLICT,"User:" + userDto.getUserName()  +
+                   " creation failed due to missing groups.", false);
+        }
+        userDetail = userRepository.save(userDetail);
+        ApiResponseDto customMessageDto = new ApiResponseDto();
+        if(Objects.nonNull(userDetail.getUserId())){
+            customMessageDto = new ApiResponseDto(HttpStatus.CREATED,"Created User with UserName: '" +
+                    userDetail.getUserName() +"'", true);
+        }else{
+            customMessageDto = new ApiResponseDto(HttpStatus.CONFLICT,"User creation failed with UserName: '" +
+                    userDetail.getUserName() +"'", false);
+        }
+        return customMessageDto;
     }
 
     @Transactional
     @Override
-    public UserViewDto updateUser(UserDto userDto) {
+    public UserViewDto updateUserAndUserGroups(UserDto userDto) {
         UserDetail userDetail = userRepository.findUserByUserName(userDto.getUserName());
         if(userDetail == null){
             throw new OpenApiResourceNotFoundException("User not found ::" +  userDto.getUserName());
@@ -86,6 +100,7 @@ public class UserServiceImpl implements UserService {
                 }
             }
         }
+
         deleteGroupRelation(deleteGroups);
         userDetail = updateGroups(userDetail, userDto.getGroups());
         userDetail.setUserRole(userDto.getUserRole());
@@ -94,9 +109,7 @@ public class UserServiceImpl implements UserService {
         userDetail.setFirstName(userDto.getFirstName());
         userDetail.setLastName(userDto.getLastName());
         userDetail.setPassword(userDto.getPassword());
-        userRepository.save(userDetail);
-        UserViewDto updateUser = new UserViewDto(userDetail);
-
+        UserViewDto updateUser = new UserViewDto(userRepository.save(userDetail));
         return updateUser;
     }
 
@@ -108,7 +121,7 @@ public class UserServiceImpl implements UserService {
 
     private UserDetail updateGroups(UserDetail userDetail, List<GroupDto> groupDtos){
         UserGroup userGroup;
-        List<UserGroup> existingGroups =userDetail.getGroups();
+        List<UserGroup> existingGroups = userDetail.getGroups();
         for(GroupDto groupDto: filterGroups(existingGroups, groupDtos)){
             GroupDetail groupDetail = groupRepository.findGroupDetailByGroupName(groupDto.getGroupName());
             if(Objects.nonNull(groupDetail)){
@@ -144,15 +157,19 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public CustomMessageDto deleteUser(String userName) {
-        CustomMessageDto customMessageDto = new CustomMessageDto();
+    public ApiResponseDto deleteUser(String userName) {
+        ApiResponseDto customMessageDto = new ApiResponseDto();
         deleteGroupRelation(userName);
         int count = userRepository.deleteByUserName(userName);
         if(count >= 1){
-            customMessageDto.setMessage("User found and deleted, number of rows deleted:" + count);
+            log.info(userName + " User found and deleted, number of rows deleted:" + count);
+            customMessageDto.setHttpStatus(HttpStatus.OK);
+            customMessageDto.setMessage("User found and deleted.");
             customMessageDto.setStatus(true);
         }else if(count == 0){
-            customMessageDto.setMessage("User not found to delete, number of rows deleted:" + count);
+            log.info(userName + " User not found to delete, number of rows deleted:" + count);
+            customMessageDto.setHttpStatus(HttpStatus.NOT_FOUND);
+            customMessageDto.setMessage("User not found to delete.");
             customMessageDto.setStatus(false);
         }
         return customMessageDto;

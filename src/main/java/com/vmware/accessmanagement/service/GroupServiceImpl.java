@@ -13,6 +13,7 @@ import javax.validation.*;
 import org.modelmapper.ModelMapper;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -38,8 +39,19 @@ public class GroupServiceImpl implements GroupService {
     private Validator validator;
 
     @Override
-    public GroupDto createGroup(GroupDto groupDto) {
-        return new GroupDto(groupRepository.save(modelMapper.map(groupDto, GroupDetail.class)));
+    public ApiResponseDto createGroup(GroupDto groupDto) {
+        GroupDetail groupDetail = groupRepository.save(modelMapper.map(groupDto, GroupDetail.class));
+        ApiResponseDto customMessageDto = new ApiResponseDto();
+        if(Objects.nonNull(groupDetail.getId())){
+            customMessageDto.setHttpStatus(HttpStatus.CREATED);
+            customMessageDto.setMessage("Created Group with GroupName: '" + groupDto.getGroupName() +"'");
+            customMessageDto.setStatus(true);
+        }else{
+            customMessageDto.setHttpStatus(HttpStatus.CONFLICT);
+            customMessageDto.setMessage("Group creation failed with GroupName: '" + groupDto.getGroupName() +"'");
+            customMessageDto.setStatus(false);
+        }
+        return customMessageDto;
     }
 
     @Override
@@ -59,7 +71,7 @@ public class GroupServiceImpl implements GroupService {
 
     @Transactional
     @Override
-    public GroupUserDto updateGroup(GroupUserDto groupDto) {
+    public ApiResponseDto updateGroup(GroupUserDto groupDto) {
         GroupDetail groupDetail = groupRepository.findGroupDetailByGroupName(groupDto.getGroupName());
         if(groupDetail == null){
             throw new OpenApiResourceNotFoundException("Group not found ::" +  groupDto.getGroupName());
@@ -72,10 +84,14 @@ public class GroupServiceImpl implements GroupService {
                     groupDto.getGroupPermission(), violations);
         }
         groupDetail = updateUsers(groupDetail, groupDto.getUsers());
+        if(Objects.isNull(groupDetail)){
+            return new ApiResponseDto(HttpStatus.NOT_FOUND,"Group update failed as user(s) not found, GroupName: '" +
+                    groupDto.getGroupName() +"'",  false);
+        }
         groupDetail.setGroupDescription(groupDto.getGroupDescription());
         groupDetail.setGroupRole(groupDto.getGroupRole());
-        GroupUserDto updateDto = new GroupUserDto(groupRepository.save(groupDetail));
-        return updateDto;
+        groupRepository.save(groupDetail);
+        return new ApiResponseDto(HttpStatus.OK,"Updated Group: '" + groupDto.getGroupName() +"'",  true);
     }
 
     private GroupDetail updateUsers(GroupDetail groupDetail, List<UserInGroupDto> userInGroupDtos){
@@ -84,12 +100,15 @@ public class GroupServiceImpl implements GroupService {
         for(UserInGroupDto userInGroupDto: filterUsers(existingUsers, userInGroupDtos)){
             userGroup = new UserGroup();
             UserDetail userDetail = userRepository.findUserByUserName(userInGroupDto.getUserName());
-            userGroup.setUserDetail(userDetail);
-            userGroup.setGroupDetail(groupDetail);
-            userGroupRepository.save(userGroup);
-            groupDetail.getUsers().add(userGroup);
+            if(Objects.nonNull(userDetail)){
+                userGroup.setUserDetail(userDetail);
+                userGroup.setGroupDetail(groupDetail);
+                userGroupRepository.save(userGroup);
+                groupDetail.getUsers().add(userGroup);
+            }else{
+                return null;
+            }
         }
-
         return groupDetail;
     }
 
@@ -109,19 +128,16 @@ public class GroupServiceImpl implements GroupService {
                     }
                 }
             }
-
         }
         return filteredUsers;
     }
 
     @Transactional
     @Override
-    public CustomMessageDto deleteGroup(String groupName) {
-
-        CustomMessageDto customMessageDto = new CustomMessageDto();
+    public ApiResponseDto deleteGroup(String groupName) {
+        ApiResponseDto customMessageDto = new ApiResponseDto();
         if(groupName.equals(ADMIN_ALL)){
-            customMessageDto.setMessage("ADMIN_ALL default group can't be deleted.");
-            customMessageDto.setStatus(false);
+            customMessageDto = new ApiResponseDto(HttpStatus.FORBIDDEN, "ADMIN_ALL default group can't be deleted.", false );
             return customMessageDto;
         }
         GroupDetail group = groupRepository.findGroupDetailByGroupName(groupName);
@@ -130,11 +146,11 @@ public class GroupServiceImpl implements GroupService {
         }
         int count = groupRepository.deleteByGroupName(groupName);
         if(count >= 1){
-            customMessageDto.setMessage("Group found and deleted, number of rows deleted:" + count);
-            customMessageDto.setStatus(true);
+            log.info(groupName +  " Group found and deleted, number of rows deleted:" + count);
+            customMessageDto = new ApiResponseDto(HttpStatus.OK, groupName +  " Group found and deleted", true);
         }else if(count == 0){
-            customMessageDto.setMessage("Group not found to delete, number of rows deleted:" + count);
-            customMessageDto.setStatus(false);
+            log.info(groupName + " Group not found to delete, number of rows deleted:" + count);
+            customMessageDto = new ApiResponseDto(HttpStatus.NOT_FOUND, groupName + " Group not found to delete", false);
         }
         return customMessageDto;
     }
