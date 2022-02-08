@@ -2,6 +2,7 @@ package com.vmware.accessmanagement.controller;
 
 import com.vmware.accessmanagement.dto.ApiResponseDto;
 import com.vmware.accessmanagement.dto.UserDto;
+import com.vmware.accessmanagement.dto.UserViewDto;
 import com.vmware.accessmanagement.exception.ApiError;
 import com.vmware.accessmanagement.model.GroupRole;
 import com.vmware.accessmanagement.service.UserService;
@@ -46,7 +47,7 @@ public class UserControllerTest extends BaseTest {
         userDto.setUserRole(GroupRole.NON_ADMIN.toString());
         userDto.setDob(date);
         userDto.setAddress("111 Address Cary, NC");
-        userDto.setPassword("Secret@123456");
+        userDto.setPassword("Secret@12346");
     }
     private void createUser() throws Exception {
         userDto.setUserName("Krishna.Kolukuluri");
@@ -59,11 +60,47 @@ public class UserControllerTest extends BaseTest {
         ApiResponseDto apiResponseDto = mapFromJson(content, ApiResponseDto.class);
         assertEquals("Created User with UserName: '"+userDto.getUserName()+"'", apiResponseDto.getMessage());
     }
+
+    @Test
+    public void test_InternalServerException() throws Exception {
+        userDto.setPassword("Secret@12346");
+        String json = mapToJson(userDto);
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.put("/users/Krishna.Kolukuluri").contentType(MediaType.APPLICATION_JSON).content(json)).andReturn();
+        assertEquals(500, mvcResult.getResponse().getStatus());
+        String content = mvcResult.getResponse().getContentAsString();
+        ApiError apiResponseDto = mapFromJson(content, ApiError.class);
+        assertEquals("User not found ::Krishna.Kolukuluri", apiResponseDto.getMessage());
+    }
+
+    @Test
+    public void test_ConstraintViolationException() throws Exception {
+        userDto.setPassword("Secret");
+        String json = mapToJson(userDto);
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.put("/users/Krishna.Kolukuluri").contentType(MediaType.APPLICATION_JSON).content(json)).andReturn();
+        log.info(mvcResult.getResponse().getStatus()+"Krishna_mvcResult.getResponse().getStatus()");
+        assertEquals(400, mvcResult.getResponse().getStatus());
+        String content = mvcResult.getResponse().getContentAsString();
+        ApiError apiResponseDto = mapFromJson(content, ApiError.class);
+        assertEquals("Data Validation Error", apiResponseDto.getMessage());
+        assertEquals("password: Invalid Password", apiResponseDto.getErrors().get(0));
+    }
+
     @Test
     public void test_GetUsers() throws Exception {
         String uri = "/users/all";
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(uri).contentType(MediaType.APPLICATION_JSON)).andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    public void test_GetUser() throws Exception {
+        createUser();
+        String uri = "/users/Krishna.Kolukuluri";
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(uri).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        String content = mvcResult.getResponse().getContentAsString();
+        UserViewDto apiResponseDto = mapFromJson(content, UserViewDto.class);
+        assertEquals(userDto.getUserName(), apiResponseDto.getUserName());
     }
 
     @Test
@@ -81,6 +118,13 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
+    public void test_MediaNotSupportedException() throws Exception {
+        String json = mapToJson(userDto);
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.put("/users/Krishna.Kolukuluri").contentType(MediaType.APPLICATION_ATOM_XML).content(json)).andReturn();
+        assertEquals(415, mvcResult.getResponse().getStatus());
+    }
+
+    @Test
     public void test_DeleteUserDetail() throws Exception {
         createUser();
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.delete("/users/Krishna.Kolukuluri").contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -88,12 +132,21 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
-    public void test_CreateUserWithValidUserNameAndPassword() throws Exception {
+    public void test_MethodNotAllowedException() throws Exception {
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.patch("/users/Krishna.Kolukuluri").contentType(MediaType.APPLICATION_JSON)).andReturn();
+        assertEquals(405, mvcResult.getResponse().getStatus());
+        String content = mvcResult.getResponse().getContentAsString();
+        ApiError apiResponseDto = mapFromJson(content, ApiError.class);
+        assertEquals("Request method 'PATCH' not supported", apiResponseDto.getMessage());
+    }
+
+    @Test
+    public void test_CreateUser() throws Exception {
         createUser();
     }
 
     @Test
-    public void test_CreateUserWithValidUserNameAndPassword_Exceptions() throws Exception {
+    public void test_CreateUser_Exceptions() throws Exception {
         createUser();
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post("/users/createUser").contentType(MediaType.APPLICATION_JSON).content( mapToJson(userDto))).andReturn();
         assertEquals(400, mvcResult.getResponse().getStatus());
@@ -131,7 +184,7 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
-    public void test_CreateUserWithInValidPasswordAndInvalidUsername() throws Exception {
+    public void test_CreateUserWithInValidPasswordAndUsername() throws Exception {
         userDto.setUserName("Kris");
         userDto.setPassword("Secretabcde");
         String json = mapToJson(userDto);
