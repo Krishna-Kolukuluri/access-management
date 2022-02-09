@@ -104,9 +104,9 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
-    public void test_GetUserWithGroups() throws Exception {
+    public void test_GetUserWithGroups_NotFound() throws Exception {
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get("/users/abcGroup").contentType(MediaType.APPLICATION_JSON)).andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertEquals(404, mvcResult.getResponse().getStatus());
     }
 
     @Test

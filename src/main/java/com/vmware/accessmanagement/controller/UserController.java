@@ -9,6 +9,7 @@ import com.vmware.accessmanagement.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/users")
@@ -64,9 +66,15 @@ public class UserController {
      * @return UserViewDto
      */
     @GetMapping(value = "/{userName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserViewDto getUserWithGroups(@PathVariable String userName) {
+    public ResponseEntity getUserWithGroups(@PathVariable String userName) throws JsonProcessingException {
         log.info("Get users and groups with User Name -> " + userName);
-        return userService.getUserWithGroups(userName);
+        UserViewDto userViewDto = userService.getUserWithGroups(userName);
+        if(Objects.isNull(userViewDto.getUserName())){
+            ApiResponseDto apiResponseDto = new ApiResponseDto(HttpStatus.NOT_FOUND, userName+ " user not found.", false);
+            return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
+        }else{
+            return ResponseEntity.status(HttpStatus.OK).body(objectMapper.writeValueAsString(userViewDto));
+        }
     }
 
     /**
