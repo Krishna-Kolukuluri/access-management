@@ -11,6 +11,9 @@ import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Interceptor class for logs
+ */
 @Component
 public class LogInterceptor implements HandlerInterceptor {
 

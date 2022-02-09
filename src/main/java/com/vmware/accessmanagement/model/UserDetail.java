@@ -27,7 +27,6 @@ public class UserDetail {
     @Column(name = "user_name", unique = true)
     @NotBlank(message = "UserName is mandatory")
     @ValidUserName
-    //@Unique(service = UserService.class, fieldName = "userName", message = "UserName.unique.violation")
     String userName;
 
     @Column(name = "first_name")

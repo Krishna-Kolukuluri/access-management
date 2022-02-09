@@ -11,6 +11,9 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.util.Base64;
 
+/**
+ * Password Encryption functionality
+ */
 @Component
 public class AttributeEncryptor implements AttributeConverter<String, String> {
 

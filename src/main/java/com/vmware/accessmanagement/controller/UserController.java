@@ -30,11 +30,21 @@ public class UserController {
     @Autowired
     private ModelMapper modelMapper;
 
+    /**
+     * API to get all Users
+     * @return List of UserViewDTO
+     */
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<UserViewDto> getUsers(Map<String, Object> model) {
+    public List<UserViewDto> getUsers() {
         return userService.getUsers();
     }
 
+    /**
+     * API to Create User
+     * @param userDto
+     * @return ResponseEntity
+     * @throws JsonProcessingException
+     */
     @PostMapping(value = "/createUser", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createUser(@Valid @RequestBody UserDto userDto) throws JsonProcessingException {
         ApiResponseDto  apiResponseDto = new ApiResponseDto();
@@ -48,21 +58,39 @@ public class UserController {
 
     }
 
+    /**
+     * API to get Users along with groups
+     * @param userName
+     * @return UserViewDto
+     */
     @GetMapping(value = "/{userName}", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserViewDto getUserWithGroups(@PathVariable String userName) {
-        log.info("User Name -> " + userName);
+        log.info("Get users and groups with User Name -> " + userName);
         return userService.getUserWithGroups(userName);
     }
 
+    /**
+     * API to update users
+     * @param userName
+     * @param userDto
+     * @return UserViewDto
+     * @throws JsonProcessingException
+     */
     @RequestMapping(method = RequestMethod.PUT, value = "/{userName}", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserViewDto updateUserDetail(@PathVariable String userName, @Valid @RequestBody UserDto userDto) throws JsonProcessingException {
-        log.info("userName: " + userName);
+        log.info("Update User with userName: " + userName);
         return userService.updateUserAndUserGroups(userDto);
     }
 
+    /**
+     * API to delete user
+     * @param userName
+     * @return Response Entity
+     * @throws JsonProcessingException
+     */
     @RequestMapping(method = RequestMethod.DELETE, value = "/{userName}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity deleteUserDetail(@PathVariable String userName) throws JsonProcessingException {
-        log.info("userName: " + userName);
+        log.info("Delete user with userName: " + userName);
         ApiResponseDto  apiResponseDto = userService.deleteUser(userName);
 
         return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));

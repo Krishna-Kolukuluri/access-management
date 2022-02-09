@@ -91,7 +91,6 @@ public class UserServiceImpl implements UserService {
                 userDto.getGroups().add(groupDto);
             }else{
                 List<UserGroup> userGroups = new ArrayList<UserGroup>(userDetail.getGroups());
-                //Collections.copy(userGroups, userDetail.getGroups());
                 for(UserGroup userGroup: userGroups){
                     if(userGroup.getGroupDetail().getGroupRole().equals(GroupRole.ADMIN.toString())){
                         deleteGroups.add(userGroup);
@@ -113,12 +112,22 @@ public class UserServiceImpl implements UserService {
         return updateUser;
     }
 
+    /**
+     * Deletes Users relations associated with the group
+     * @param deleteGroups
+     */
     private void  deleteGroupRelation(List<UserGroup> deleteGroups){
         for(UserGroup userGroup: deleteGroups){
             userGroupRepository.deleteByGroupID(userGroup.getGroupDetail().getId());
         }
     }
 
+    /**
+     * Updates the Group details and also adds new users to the group
+     * @param userDetail
+     * @param groupDtos
+     * @return UserDetail
+     */
     private UserDetail updateGroups(UserDetail userDetail, List<GroupDto> groupDtos){
         UserGroup userGroup;
         List<UserGroup> existingGroups = userDetail.getGroups();
@@ -135,6 +144,12 @@ public class UserServiceImpl implements UserService {
         return userDetail;
     }
 
+    /**
+     * This functionality is to ensure uniqueness of groups to users
+     * @param existingGroups
+     * @param groupDtos
+     * @return List<GroupDto>
+     */
     private List<GroupDto> filterGroups(List<UserGroup> existingGroups, List<GroupDto> groupDtos){
         List<GroupDto> filterGroups = new ArrayList<>();
         if(groupDtos != null){
@@ -175,6 +190,11 @@ public class UserServiceImpl implements UserService {
         return customMessageDto;
     }
 
+    /**
+     * Deletes Relation between group and user
+     * @param userName
+     * @return count
+     */
     private int deleteGroupRelation(String userName){
         UserDetail userDetail = userRepository.findUserByUserName(userName);
         int count = 0;

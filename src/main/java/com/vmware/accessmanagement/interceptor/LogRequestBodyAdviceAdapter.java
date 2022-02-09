@@ -11,6 +11,9 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAd
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Type;
 
+/**
+ * Class to intercept Request and logs httpservlet requests
+ */
 @ControllerAdvice
 public class LogRequestBodyAdviceAdapter extends RequestBodyAdviceAdapter {
     @Autowired

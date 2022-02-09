@@ -94,6 +94,12 @@ public class GroupServiceImpl implements GroupService {
         return new ApiResponseDto(HttpStatus.OK,"Updated Group: '" + groupDto.getGroupName() +"'",  true);
     }
 
+    /**
+     * Updates users in a group
+     * @param groupDetail
+     * @param userInGroupDtos
+     * @return GroupDetail
+     */
     private GroupDetail updateUsers(GroupDetail groupDetail, List<UserInGroupDto> userInGroupDtos){
         UserGroup userGroup;
         List<UserGroup> existingUsers = groupDetail.getUsers();
@@ -111,7 +117,12 @@ public class GroupServiceImpl implements GroupService {
         }
         return groupDetail;
     }
-
+    /**
+     * This functionality is to ensure uniqueness of users to groups
+     * @param existingUsers
+     * @param userInGroupDtos
+     * @return List<GroupDto>
+     */
     private List<UserInGroupDto> filterUsers(List<UserGroup> existingUsers, List<UserInGroupDto>  userInGroupDtos){
         List<UserInGroupDto> filteredUsers = new ArrayList<>();
         if(Objects.nonNull(userInGroupDtos)){

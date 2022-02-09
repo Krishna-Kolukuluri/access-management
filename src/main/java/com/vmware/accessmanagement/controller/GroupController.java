@@ -29,6 +29,12 @@ public class GroupController {
     @Autowired
     ObjectMapper objectMapper;
 
+    /**
+     * API to Create Group
+     * @param groupDto
+     * @return ResponseEntity
+     * @throws JsonProcessingException
+     */
     @PostMapping(value = "/createGroup", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity createGroup(@Valid @RequestBody GroupDto groupDto) throws JsonProcessingException {
@@ -42,28 +48,50 @@ public class GroupController {
         return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
     }
 
+    /**
+     * API to get Group along with users
+     * @param groupName
+     * @return GroupUserDto
+     */
     @GetMapping(value = "/{groupName}", produces = MediaType.APPLICATION_JSON_VALUE)
     public GroupUserDto getGroupWithUsers(@PathVariable String groupName) {
-        log.info("Group Name -> " + groupName);
+        log.info("Get all Group users with Group Name -> " + groupName);
         return groupService.getGroupWithUsers(groupName);
     }
 
+    /**
+     * API to get All Groups
+     * @return List<GroupDto>
+     */
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<GroupDto> getGroups() {
         return groupService.getGroups();
     }
 
+    /**
+     * API to update Group
+     * @param groupName
+     * @param groupUserDto
+     * @return ResponseEntity
+     * @throws JsonProcessingException
+     */
     @RequestMapping(method = RequestMethod.PUT, value = "/{groupName}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateGroupDetail(@PathVariable String groupName, @Valid @RequestBody GroupUserDto groupUserDto) throws JsonProcessingException {
-        log.info("groupName: " + groupName);
+        log.info("Update GroupDetail api call with Group Name : " + groupName);
         ApiResponseDto apiResponseDto = groupService.updateGroup(groupUserDto);
         return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
     }
 
+    /**
+     * API to delete Group
+     * @param groupName
+     * @return ResponseEntity
+     * @throws JsonProcessingException
+     */
     @RequestMapping(method = RequestMethod.DELETE, value = "/{groupName}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity deleteGroupDetail(@PathVariable String groupName) throws JsonProcessingException {
-        log.info("groupName: " + groupName);
+        log.info("Delete GroupDetail api call with Group Name : " + groupName);
         ApiResponseDto apiResponseDto = groupService.deleteGroup(groupName);
         return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
     }

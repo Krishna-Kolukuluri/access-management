@@ -13,13 +13,11 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @NoArgsConstructor
 public class UserDto extends UserViewDto {
-    //private Long id;
     @NotBlank(message = "Password is mandatory")
     @ValidPassword
     String password;
     public UserDto(UserDetail user){
         super(user);
-        //this.id = user.getUserId();
         this.password=user.getPassword();
     }
 }

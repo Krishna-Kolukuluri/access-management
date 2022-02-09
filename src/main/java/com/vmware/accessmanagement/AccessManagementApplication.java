@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 @Log4j2
-public class AccessManagementApplication {
+public class AccessManagementApplication{
 
 	public static void main(String... args) {
 		SpringApplication.run(AccessManagementApplication.class, args);

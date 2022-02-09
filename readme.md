@@ -50,7 +50,7 @@ If all above steps are successful then
     "userName":"Krishna_Two",
     "userRole":"ADMIN",
     "dob":"2010-12-14",
-    "address":"410 Windy Peak Loop, Cary, NC",
+    "address":"111 Address Cary, NC",
     "password":"KrishnaKra@1234"
   }
 ```
@@ -63,7 +63,7 @@ If all above steps are successful then
   "userName": "KrishnaRead",
   "userRole": "NONE_ADMIN",
   "dob": "2010-12-14",
-  "address": "410 Windy Peak Loop, Cary, NC",
+  "address": "111 Address Cary, NC",
   "password": "KrishnaKra@1234",
   "groups": [
     {
@@ -81,7 +81,7 @@ If all above steps are successful then
         "userName": "KrishnaWrite",
         "dob": "2010-12-13",
         "userRole": "NON_ADMIN",
-        "address": "410 Windy Peak Loop, Cary, NC",
+        "address": "111 Address Cary, NC",
         "groups": [
             {
                 "groupName": "WRITE",
@@ -97,7 +97,7 @@ If all above steps are successful then
         "userName": "KrishnaNewOne",
         "dob": "2010-12-13",
         "userRole": "NON_ADMIN",
-        "address": "410 Windy Peak Loop, Cary, NC",
+        "address": "111 Address Cary, NC",
         "groups": []
     }
 ]
@@ -110,7 +110,7 @@ If all above steps are successful then
     "userName": "KrishnaNewOne",
     "dob": "2010-12-13",
     "userRole": "NON_ADMIN",
-    "address": "410 Windy Peak Loop, Cary, NC",
+    "address": "111 Address Cary, NC",
     "groups": []
 }
 ```
@@ -131,7 +131,7 @@ PUT:
   "userName": "KrishnaNewOne",
   "userRole": "NON_ADMIN",
   "dob": "2010-12-14",
-  "address": "410 Windy Peak Loop, Cary, NC",
+  "address": "111 Address Cary, NC",
   "password": "Krishna@12",
   "groups": [
     {
@@ -146,7 +146,7 @@ Response:
     "userName": "KrishnaNewOne",
     "dob": "2010-12-14",
     "userRole": "NON_ADMIN",
-    "address": "410 Windy Peak Loop, Cary, NC",
+    "address": "111 Address Cary, NC",
     "groups": [
         {
             "groupName": "READ",

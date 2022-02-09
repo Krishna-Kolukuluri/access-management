@@ -11,7 +11,9 @@ import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
-
+/**
+ * Class to intercept Request and logs httpservlet response
+ */
 @ControllerAdvice
 public class LogResponseBodyAdviceAdapter implements ResponseBodyAdvice<Object> {
     @Autowired
