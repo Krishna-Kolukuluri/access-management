@@ -81,6 +81,12 @@ public class GroupControllerTest extends BaseTest{
     }
 
     @Test
+    public void test_getGroupWithUsers_NotFound() throws Exception {
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get("/groups/Admin_Group").contentType(MediaType.APPLICATION_JSON)).andReturn();
+        assertEquals(404, mvcResult.getResponse().getStatus());
+    }
+
+    @Test
     public void test_UpdateGroupDetail() throws Exception {
         createGroup();
         String json = mapToJson(groupDto);

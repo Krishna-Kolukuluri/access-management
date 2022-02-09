@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/groups")
@@ -54,9 +55,15 @@ public class GroupController {
      * @return GroupUserDto
      */
     @GetMapping(value = "/{groupName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public GroupUserDto getGroupWithUsers(@PathVariable String groupName) {
-        log.info("Get all Group users with Group Name -> " + groupName);
-        return groupService.getGroupWithUsers(groupName);
+    public ResponseEntity getGroupWithUsers(@PathVariable String groupName) throws JsonProcessingException {
+        log.info("Get Group and users with Group Name -> " + groupName);
+        GroupUserDto groupUserDto = groupService.getGroupWithUsers(groupName);
+        if(Objects.isNull(groupUserDto.getGroupName())){
+            ApiResponseDto apiResponseDto = new ApiResponseDto(HttpStatus.NOT_FOUND, groupName+ " user not found.", false);
+            return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
+        }else{
+            return ResponseEntity.status(HttpStatus.OK).body(objectMapper.writeValueAsString(groupUserDto));
+        }
     }
 
     /**
