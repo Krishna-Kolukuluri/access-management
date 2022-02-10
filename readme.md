@@ -2,13 +2,6 @@
 
 Access Management API is a Rest based service that enables creating, updating and deleting users, groups and their relationships.
 
-* **Note:** For time constraint reasons I've kept Add and Remove `Users` from `Group` and `Groups` from `Users` within 
-`UpdateGroup` , `UpdateUser` respectively. In final API I would create separate endpoint for each one of them like below
-    * `/am/groups/{groupName}/users/add` adding users to group
-    * `/am/groups/{groupName}/users/delete` deleting users from group
-    * `/am/groups/{userName}/groups/add` adding groups to user
-    * `/am/groups/{userName}/groups/add` deleting groups from user
-
 Using H2 database for temporary storage of data. Enabled encryption of sensitive data like `password` when saved to database.
 
 * **Users API** can be accessed while service is running from [Users](http://localhost:8080/am/swagger-ui/index.html#/user-controller)
