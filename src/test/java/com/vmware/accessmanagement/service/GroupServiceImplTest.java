@@ -33,7 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @Log4j2
-@Tag("Unit")
+//@Tag("Unit")
 public class GroupServiceImplTest {
     static GroupDto groupDto = new GroupDto();
     static GroupDetail groupDetail = new GroupDetail();

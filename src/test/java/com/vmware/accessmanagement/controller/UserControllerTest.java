@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Log4j2
 @Transactional
-@Tag("Integration")
+//@Tag("Integration")
 public class UserControllerTest extends BaseTest {
     private static UserDto userDto;
 
