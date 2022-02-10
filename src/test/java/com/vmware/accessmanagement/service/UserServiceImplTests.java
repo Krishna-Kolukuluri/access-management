@@ -1,16 +1,12 @@
 package com.vmware.accessmanagement.service;
 
-import com.vmware.accessmanagement.dto.ApiResponseDto;
-import com.vmware.accessmanagement.dto.GroupDto;
-import com.vmware.accessmanagement.dto.UserDto;
-import com.vmware.accessmanagement.dto.UserViewDto;
+import com.vmware.accessmanagement.dto.*;
 import com.vmware.accessmanagement.model.*;
 import com.vmware.accessmanagement.repository.GroupRepository;
 import com.vmware.accessmanagement.repository.UserGroupRepository;
 import com.vmware.accessmanagement.repository.UserRepository;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -49,7 +45,9 @@ public class UserServiceImplTests {
 
     static UserDetail userDetail = new UserDetail();
     static GroupDetail groupDetail = new GroupDetail();
-    static UserDto userDto = new UserDto();
+    //static UserGroupDto userGroupDto = new UserGroupDto();
+    static UserDetailDto userDetailDto = new UserDetailDto();
+    static UserUpdateDto userUpdateDto = new UserUpdateDto();
     static List<UserGroup> groups = new ArrayList<>();
     static UserDetail updatedUserDetail = new UserDetail();
 
@@ -78,27 +76,41 @@ public class UserServiceImplTests {
         updatedUserDetail = userDetail;
         updatedUserDetail.setUserName("Krishna.Kolukuluri.updated");
 
-        userDto.setFirstName("Krishna");
-        userDto.setLastName("Kolukuluri");
-        userDto.setUserName("Krishna.Kolukuluri");
-        userDto.setUserRole(GroupRole.ADMIN.toString());
-        userDto.setDob(date);
-        userDto.setAddress("111 Address Cary, NC");
-        List<GroupDto> groupDtos=new  ArrayList<>();
-        GroupDto dto=new GroupDto();
+/*        userGroupDto.setFirstName("Krishna");
+        userGroupDto.setLastName("Kolukuluri");
+        userGroupDto.setUserName("Krishna.Kolukuluri");
+        userGroupDto.setUserRole(GroupRole.ADMIN.toString());
+        userGroupDto.setDob(date);
+        userGroupDto.setAddress("111 Address Cary, NC");
+        List<GroupDetailDto> groupDtos=new  ArrayList<>();
+        GroupDetailDto dto=new GroupDetailDto();
         dto.setGroupName("Admin-Group");
         dto.setGroupRole(GroupRole.ADMIN.toString());
         dto.setGroupPermission(GroupPermission.ALL.toString());
         dto.setGroupDescription("Testing");
         groupDtos.add(dto);
-        userDto.setGroups(groupDtos);
+        userGroupDto.setGroups(groupDtos);*/
+
+        userDetailDto.setFirstName("Krishna");
+        userDetailDto.setLastName("Kolukuluri");
+        userDetailDto.setUserName("Krishna.Kolukuluri");
+        userDetailDto.setUserRole(GroupRole.ADMIN.toString());
+        userDetailDto.setDob(date);
+        userDetailDto.setAddress("111 Address Cary, NC");
+
+        userUpdateDto.setFirstName("Krishna");
+        userUpdateDto.setLastName("Kolukuluri");
+        //userUpdateDto.setUserName("Krishna.Kolukuluri");
+        userUpdateDto.setUserRole(GroupRole.ADMIN.toString());
+        userUpdateDto.setDob(date);
+        userUpdateDto.setAddress("111 Address Cary, NC");
     }
 
     @Test
     public void test_CreatedUser() throws ParseException {
         when(modelMapper.map(any(),any())).thenReturn(userDetail);
         when(userRepository.save(any())).thenReturn(userDetail);
-        userService.createUser(userDto);
+        userService.createUser(userDetailDto);
         verify(userRepository, times(1)).save(any());
     }
 
@@ -139,7 +151,7 @@ public class UserServiceImplTests {
         when(userRepository.save(any())).thenReturn(updatedUserDetail);
         when(userGroupRepository.deleteByGroupID(anyLong())).thenReturn(1);
         when(groupRepository.findGroupDetailByGroupName(anyString())).thenReturn(groupDetail);
-        UserViewDto resultDto = userService.updateUserAndUserGroups(userDto);
+        UserViewDto resultDto = userService.updateUser("Krishna.Kolukuluri", userUpdateDto);
         assertNotNull(resultDto);
         assertTrue(resultDto.getUserName().contains(updatedUserDetail.getUserName()));
     }
@@ -148,7 +160,7 @@ public class UserServiceImplTests {
     public void test_UpdateUser_NotFound(){
         when(userRepository.findUserByUserName(anyString())).thenReturn(null);
         Exception exception = assertThrows(OpenApiResourceNotFoundException.class, () -> {
-            userService.updateUserAndUserGroups(userDto);
+            userService.updateUser("Krishna.Kolukuluri", userUpdateDto);
         });
         assertTrue(exception.getMessage().contains("User not found"));
 

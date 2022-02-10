@@ -1,14 +1,12 @@
 package com.vmware.accessmanagement.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vmware.accessmanagement.dto.ApiResponseDto;
-import com.vmware.accessmanagement.dto.GroupDto;
+import com.vmware.accessmanagement.dto.GroupDetailDto;
 import com.vmware.accessmanagement.model.GroupPermission;
 import com.vmware.accessmanagement.model.GroupRole;
 import com.vmware.accessmanagement.service.GroupService;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -28,8 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Transactional
 //@Tag("Integration")
 public class GroupControllerTest extends BaseTest{
-    static List<GroupDto> groups = new ArrayList<>();
-    static GroupDto groupDto = new GroupDto();
+    static List<GroupDetailDto> groups = new ArrayList<>();
+    static GroupDetailDto groupDto = new GroupDetailDto();
     @Mock
     private GroupService groupService;
 

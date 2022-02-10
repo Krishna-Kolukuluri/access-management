@@ -1,17 +1,14 @@
 package com.vmware.accessmanagement.controller;
 
 import com.vmware.accessmanagement.dto.ApiResponseDto;
-import com.vmware.accessmanagement.dto.UserDto;
+import com.vmware.accessmanagement.dto.UserDetailDto;
 import com.vmware.accessmanagement.dto.UserViewDto;
 import com.vmware.accessmanagement.exception.ApiError;
 import com.vmware.accessmanagement.model.GroupRole;
-import com.vmware.accessmanagement.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
@@ -29,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Transactional
 //@Tag("Integration")
 public class UserControllerTest extends BaseTest {
-    private static UserDto userDto;
+    private static UserDetailDto userDetailDto;
 
     @BeforeEach
     public void setup() {
@@ -40,31 +37,31 @@ public class UserControllerTest extends BaseTest {
     public static void setUser() throws ParseException {
         String dob="31-12-2010";
         Date date=new SimpleDateFormat("DD-MM-YYYY"). parse(dob);
-        userDto = new UserDto();
-        userDto.setFirstName("Krishna");
-        userDto.setLastName("Kolukuluri");
-        userDto.setUserName("Krishna.Kolukuluri");
-        userDto.setUserRole(GroupRole.NON_ADMIN.toString());
-        userDto.setDob(date);
-        userDto.setAddress("111 Address Cary, NC");
-        userDto.setPassword("Secret@12346");
+        userDetailDto = new UserDetailDto();
+        userDetailDto.setFirstName("Krishna");
+        userDetailDto.setLastName("Kolukuluri");
+        userDetailDto.setUserName("Krishna.Kolukuluri");
+        userDetailDto.setUserRole(GroupRole.NON_ADMIN.toString());
+        userDetailDto.setDob(date);
+        userDetailDto.setAddress("111 Address Cary, NC");
+        userDetailDto.setPassword("Secret@12346");
     }
     private void createUser() throws Exception {
-        userDto.setUserName("Krishna.Kolukuluri");
-        userDto.setPassword("Secret@123456");
-        String json = mapToJson(userDto);
+        userDetailDto.setUserName("Krishna.Kolukuluri");
+        userDetailDto.setPassword("Secret@123456");
+        String json = mapToJson(userDetailDto);
         String uri = "/users/createUser";
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(uri).contentType(MediaType.APPLICATION_JSON).content(json)).andReturn();
         assertEquals(201, mvcResult.getResponse().getStatus());
         String content = mvcResult.getResponse().getContentAsString();
         ApiResponseDto apiResponseDto = mapFromJson(content, ApiResponseDto.class);
-        assertEquals("Created User with UserName: '"+userDto.getUserName()+"'", apiResponseDto.getMessage());
+        assertEquals("Created User with UserName: '"+ userDetailDto.getUserName()+"'", apiResponseDto.getMessage());
     }
 
     @Test
     public void test_InternalServerException() throws Exception {
-        userDto.setPassword("Secret@12346");
-        String json = mapToJson(userDto);
+        userDetailDto.setPassword("Secret@12346");
+        String json = mapToJson(userDetailDto);
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.put("/users/Krishna.Kolukuluri").contentType(MediaType.APPLICATION_JSON).content(json)).andReturn();
         assertEquals(500, mvcResult.getResponse().getStatus());
         String content = mvcResult.getResponse().getContentAsString();
@@ -74,9 +71,9 @@ public class UserControllerTest extends BaseTest {
 
     @Test
     public void test_ConstraintViolationException() throws Exception {
-        userDto.setPassword("Secret");
-        String json = mapToJson(userDto);
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.put("/users/Krishna.Kolukuluri").contentType(MediaType.APPLICATION_JSON).content(json)).andReturn();
+        userDetailDto.setPassword("Secret");
+        String json = mapToJson(userDetailDto);
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post("/users/createUser").contentType(MediaType.APPLICATION_JSON).content(json)).andReturn();
         log.info(mvcResult.getResponse().getStatus()+"Krishna_mvcResult.getResponse().getStatus()");
         assertEquals(400, mvcResult.getResponse().getStatus());
         String content = mvcResult.getResponse().getContentAsString();
@@ -100,7 +97,7 @@ public class UserControllerTest extends BaseTest {
         assertEquals(200, mvcResult.getResponse().getStatus());
         String content = mvcResult.getResponse().getContentAsString();
         UserViewDto apiResponseDto = mapFromJson(content, UserViewDto.class);
-        assertEquals(userDto.getUserName(), apiResponseDto.getUserName());
+        assertEquals(userDetailDto.getUserName(), apiResponseDto.getUserName());
     }
 
     @Test
@@ -112,14 +109,14 @@ public class UserControllerTest extends BaseTest {
     @Test
     public void test_UpdateUserDetail() throws Exception {
         createUser();
-        String json = mapToJson(userDto);
+        String json = mapToJson(userDetailDto);
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.put("/users/Krishna.Kolukuluri").contentType(MediaType.APPLICATION_JSON).content(json)).andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
     }
 
     @Test
     public void test_MediaNotSupportedException() throws Exception {
-        String json = mapToJson(userDto);
+        String json = mapToJson(userDetailDto);
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.put("/users/Krishna.Kolukuluri").contentType(MediaType.APPLICATION_ATOM_XML).content(json)).andReturn();
         assertEquals(415, mvcResult.getResponse().getStatus());
     }
@@ -148,16 +145,16 @@ public class UserControllerTest extends BaseTest {
     @Test
     public void test_CreateUser_Exceptions() throws Exception {
         createUser();
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post("/users/createUser").contentType(MediaType.APPLICATION_JSON).content( mapToJson(userDto))).andReturn();
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post("/users/createUser").contentType(MediaType.APPLICATION_JSON).content( mapToJson(userDetailDto))).andReturn();
         assertEquals(400, mvcResult.getResponse().getStatus());
         assertTrue(mvcResult.getResponse().getContentAsString().contains("BAD_REQUEST"));
     }
 
     @Test
     public void test_CreateUserWithInValidUserName() throws Exception {
-        userDto.setUserName("Kris");
-        userDto.setPassword("Secret@123456");
-        String json = mapToJson(userDto);
+        userDetailDto.setUserName("Kris");
+        userDetailDto.setPassword("Secret@123456");
+        String json = mapToJson(userDetailDto);
         String uri = "/users/createUser";
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(uri).contentType(MediaType.APPLICATION_JSON).content(json)).andReturn();
         assertEquals(400, mvcResult.getResponse().getStatus());
@@ -170,9 +167,9 @@ public class UserControllerTest extends BaseTest {
 
     @Test
     public void test_CreateUserWithInValidPassword() throws Exception {
-        userDto.setPassword("Secretabcde");
-        userDto.setUserName("Krishna.Kolukuluri");
-        String json = mapToJson(userDto);
+        userDetailDto.setPassword("Secretabcde");
+        userDetailDto.setUserName("Krishna.Kolukuluri");
+        String json = mapToJson(userDetailDto);
         String uri = "/users/createUser";
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(uri).contentType(MediaType.APPLICATION_JSON).content(json)).andReturn();
         assertEquals(400, mvcResult.getResponse().getStatus());
@@ -185,9 +182,9 @@ public class UserControllerTest extends BaseTest {
 
     @Test
     public void test_CreateUserWithInValidPasswordAndUsername() throws Exception {
-        userDto.setUserName("Kris");
-        userDto.setPassword("Secretabcde");
-        String json = mapToJson(userDto);
+        userDetailDto.setUserName("Kris");
+        userDetailDto.setPassword("Secretabcde");
+        String json = mapToJson(userDetailDto);
         String uri = "/users/createUser";
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(uri).contentType(MediaType.APPLICATION_JSON).content(json)).andReturn();
         assertEquals(400, mvcResult.getResponse().getStatus());

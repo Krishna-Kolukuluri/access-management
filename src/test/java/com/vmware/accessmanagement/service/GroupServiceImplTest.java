@@ -1,7 +1,7 @@
 package com.vmware.accessmanagement.service;
 
 import com.vmware.accessmanagement.dto.ApiResponseDto;
-import com.vmware.accessmanagement.dto.GroupDto;
+import com.vmware.accessmanagement.dto.GroupDetailDto;
 import com.vmware.accessmanagement.dto.GroupUserDto;
 import com.vmware.accessmanagement.dto.UserInGroupDto;
 import com.vmware.accessmanagement.model.*;
@@ -9,16 +9,13 @@ import com.vmware.accessmanagement.repository.GroupRepository;
 import com.vmware.accessmanagement.repository.UserGroupRepository;
 import com.vmware.accessmanagement.repository.UserRepository;
 import lombok.extern.log4j.Log4j2;
-import org.aspectj.bridge.IMessageHandler;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springdoc.api.OpenApiResourceNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
@@ -35,7 +32,7 @@ import static org.mockito.Mockito.*;
 @Log4j2
 //@Tag("Unit")
 public class GroupServiceImplTest {
-    static GroupDto groupDto = new GroupDto();
+    static GroupDetailDto groupDto = new GroupDetailDto();
     static GroupDetail groupDetail = new GroupDetail();
     static GroupUserDto groupUserDto = new GroupUserDto();
     @InjectMocks
@@ -125,7 +122,7 @@ public class GroupServiceImplTest {
         List<GroupDetail> groups = new ArrayList<>();
         groups.add(groupDetail);
         when(groupRepository.findAll()).thenReturn(groups);
-        List<GroupDto> result = groupService.getGroups();
+        List<GroupDetailDto> result = groupService.getGroups();
         assertEquals(1,result.size());
     }
 
@@ -133,26 +130,16 @@ public class GroupServiceImplTest {
     public void test_updateGroup(){
         when(groupRepository.findGroupDetailByGroupName(anyString())).thenReturn(groupDetail);
         when(groupRepository.save(any())).thenReturn(groupDetail);
-        ApiResponseDto result = groupService.updateGroup(groupUserDto);
+        ApiResponseDto result = groupService.updateGroupDetail(groupUserDto.getGroupName(), groupUserDto);
     }
 
     @Test
     public void test_updateGroup_Exception(){
         when(groupRepository.findGroupDetailByGroupName(anyString())).thenReturn(null);
         Exception exception = assertThrows(OpenApiResourceNotFoundException.class, () -> {
-            groupService.updateGroup(groupUserDto);
+            groupService.updateGroupDetail(groupUserDto.getGroupName(), groupUserDto);
         });
         assertTrue(exception.getMessage().contains("Group not found"));
-    }
-
-    @Test
-    public void test_updateGroup_ExceptionValidation(){
-        groupUserDto.setGroupPermission(GroupPermission.READ.toString());
-        when(groupRepository.findGroupDetailByGroupName(anyString())).thenReturn(groupDetail);
-       Exception exception = assertThrows(ConstraintViolationException.class, () -> {
-            groupService.updateGroup(groupUserDto);
-        });
-        assertTrue(exception.getMessage().contains("Changing Group permissions not allowed"));
     }
 
     @Test

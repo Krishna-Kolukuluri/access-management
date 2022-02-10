@@ -3,6 +3,7 @@ package com.vmware.accessmanagement.dto;
 import com.vmware.accessmanagement.model.GroupDetail;
 import com.vmware.accessmanagement.model.UserGroup;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -11,11 +12,9 @@ import java.util.Objects;
 
 @Getter
 @Setter
-public class GroupUserDto extends GroupDto {
+@NoArgsConstructor
+public class GroupUserDto extends GroupDetailDto {
     List<UserInGroupDto> users;
-
-    public GroupUserDto(){
-    }
 
     public GroupUserDto(GroupDetail groupDetail){
         //this.id = groupDetail.getId();

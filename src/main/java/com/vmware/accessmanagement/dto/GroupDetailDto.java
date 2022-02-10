@@ -1,7 +1,6 @@
 package com.vmware.accessmanagement.dto;
 
 import com.vmware.accessmanagement.model.GroupDetail;
-import com.vmware.accessmanagement.model.UserGroup;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,14 +10,13 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
-public class GroupDto {
+public class GroupDetailDto extends GroupUpdateDto {
     //private Long id;
     String groupName;
-    String groupDescription;
     String groupRole;
     String groupPermission;
 
-    public GroupDto(GroupDetail groupDetail){
+    public GroupDetailDto(GroupDetail groupDetail){
         //this.id = groupDetail.getId();
         this.groupName=groupDetail.getGroupName();
         this.groupDescription=groupDetail.getGroupDescription();
@@ -29,8 +27,8 @@ public class GroupDto {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof GroupDto)) return false;
-        GroupDto groupDto = (GroupDto) o;
+        if (!(o instanceof GroupDetailDto)) return false;
+        GroupDetailDto groupDto = (GroupDetailDto) o;
         return getGroupName().equals(groupDto.getGroupName());
     }
 

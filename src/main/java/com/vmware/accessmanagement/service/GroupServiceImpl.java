@@ -39,7 +39,7 @@ public class GroupServiceImpl implements GroupService {
     private Validator validator;
 
     @Override
-    public ApiResponseDto createGroup(GroupDto groupDto) {
+    public ApiResponseDto createGroup(GroupDetailDto groupDto) {
         GroupDetail groupDetail = groupRepository.save(modelMapper.map(groupDto, GroupDetail.class));
         ApiResponseDto customMessageDto = new ApiResponseDto();
         if(Objects.nonNull(groupDetail.getId())){
@@ -64,34 +64,109 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<GroupDto> getGroups() {
+    public List<GroupDetailDto> getGroups() {
         List<GroupDetail> groups = groupRepository.findAll();
-        return groups.stream().map(group -> new GroupDto(group)).collect(Collectors.toList());
+        return groups.stream().map(group -> new GroupDetailDto(group)).collect(Collectors.toList());
     }
 
     @Transactional
     @Override
-    public ApiResponseDto updateGroup(GroupUserDto groupDto) {
-        GroupDetail groupDetail = groupRepository.findGroupDetailByGroupName(groupDto.getGroupName());
+    public ApiResponseDto updateGroupDetail(String groupName, GroupUpdateDto groupDto) {
+        GroupDetail groupDetail = groupRepository.findGroupDetailByGroupName(groupName);
         if(groupDetail == null){
-            throw new OpenApiResourceNotFoundException("Group not found ::" +  groupDto.getGroupName());
-        }
-        if(!groupDto.getGroupPermission().equals(groupDetail.getGroupPermission())){
-            Set<ConstraintViolation<String>> violations = validator.validateValue(String.class,
-                    groupDto.getGroupPermission(), groupDetail.getGroupPermission());
-            throw new ConstraintViolationException("Changing Group permissions not allowed. original: " +
-                                                    groupDetail.getGroupPermission() + " to updating: " +
-                    groupDto.getGroupPermission(), violations);
-        }
-        groupDetail = updateUsers(groupDetail, groupDto.getUsers());
-        if(Objects.isNull(groupDetail)){
-            return new ApiResponseDto(HttpStatus.NOT_FOUND,"Group update failed as user(s) not found, GroupName: '" +
-                    groupDto.getGroupName() +"'",  false);
+            throw new OpenApiResourceNotFoundException("Group not found ::" +  groupName);
         }
         groupDetail.setGroupDescription(groupDto.getGroupDescription());
-        groupDetail.setGroupRole(groupDto.getGroupRole());
         groupRepository.save(groupDetail);
-        return new ApiResponseDto(HttpStatus.OK,"Updated Group: '" + groupDto.getGroupName() +"'",  true);
+        return new ApiResponseDto(HttpStatus.OK,"Updated Group: '" + groupName +"'",  true);
+    }
+
+    @Override
+    public ApiResponseDto addGroupUsers(String groupName, List<String> userNames) {
+        GroupDetail groupDetail = getGroupDetails(groupName);
+        groupDetail = updateGroupUsers(groupDetail, userNames);
+        if(Objects.isNull(groupDetail)){
+            return new ApiResponseDto(HttpStatus.NOT_FOUND,"Group update failed as user(s) not found, GroupName: '" +
+                    groupName +"'",  false);
+        }
+        return new ApiResponseDto(HttpStatus.OK,"Added available users to Group: '" + groupName +"'",  true);
+    }
+
+    @Override
+    public ApiResponseDto deleteGroupUsers(String groupName, List<String> userNames) {
+        GroupDetail groupDetail = getGroupDetails(groupName);
+        List<UserGroup> existingUsers = new ArrayList<>(groupDetail.getUsers());
+        if(Objects.nonNull(existingUsers)){
+            HashMap<String, String> userMap = new HashMap<>();
+            for(String userName: userNames){
+                if(!userMap.containsKey(userName)){
+                    userMap.put(userName,userName);
+                }
+            }
+            for(UserGroup userGroup: existingUsers){
+                if(userMap.containsKey(userGroup.getUserDetail().getUserName())){
+                    updateUserRole(groupName, groupDetail.getGroupRole(), userGroup.getUserDetail());
+                    userGroupRepository.deleteById(userGroup.getId());
+                    groupDetail.getUsers().remove(userGroup);
+                }
+            }
+        }
+        return new ApiResponseDto(HttpStatus.OK,"Deleted available users from Group: '" + groupName +"'",  true);
+    }
+
+    private void updateUserRole(String groupName, String groupRole, UserDetail userDetail){
+        if(groupRole.equals(GroupRole.ADMIN.toString())){
+            String updatedUserRole = GroupRole.NON_ADMIN.toString();
+            for(UserGroup userGroup: userDetail.getGroups()){
+                if(!userGroup.getGroupDetail().getGroupName().equals(groupName) &&
+                        userGroup.getGroupDetail().getGroupRole().equals(GroupRole.ADMIN.toString())){
+                    updatedUserRole = GroupRole.ADMIN.toString();
+                    break;
+                }
+            }
+            if(updatedUserRole.equals(GroupRole.NON_ADMIN.toString())){
+                userDetail.setUserRole(GroupRole.NON_ADMIN.toString());
+                userRepository.save(userDetail);
+            }
+        }
+    }
+
+    private GroupDetail getGroupDetails(String groupName){
+        GroupDetail groupDetail = groupRepository.findGroupDetailByGroupName(groupName);
+        if(groupDetail == null){
+            throw new OpenApiResourceNotFoundException("Group not found ::" +  groupName);
+        }
+        return groupDetail;
+    }
+
+
+    /**
+     * Updates users in a group
+     * @param groupDetail
+     * @param userNames
+     * @return GroupDetail
+     */
+    private GroupDetail updateGroupUsers(GroupDetail groupDetail, List<String> userNames){
+        UserGroup userGroup;
+        List<UserGroup> existingUsers = groupDetail.getUsers();
+        for(String userName: filterUsersNew(existingUsers, userNames)){
+            userGroup = new UserGroup();
+            UserDetail userDetail = userRepository.findUserByUserName(userName);
+            if(Objects.nonNull(userDetail)){
+                if(groupDetail.getGroupRole().equals(GroupRole.ADMIN.toString()) &&
+                        userDetail.getUserRole().equals(GroupRole.NON_ADMIN.toString())){
+                    userDetail.setUserRole(GroupRole.ADMIN.toString());
+                    userRepository.save(userDetail);
+                }
+                userGroup.setUserDetail(userDetail);
+                userGroup.setGroupDetail(groupDetail);
+                userGroupRepository.save(userGroup);
+                groupDetail.getUsers().add(userGroup);
+            }else{
+                return null;
+            }
+        }
+        return groupDetail;
     }
 
     /**
@@ -117,6 +192,30 @@ public class GroupServiceImpl implements GroupService {
         }
         return groupDetail;
     }
+    /**
+     * This functionality is to ensure uniqueness of users to groups
+     * @param existingUsers
+     * @param userNames
+     * @return List<GroupDto>
+     */
+    private List<String> filterUsersNew(List<UserGroup> existingUsers, List<String>  userNames){
+        List<String> filteredUsers = new ArrayList<>();
+        if(Objects.nonNull(userNames)){
+            HashMap<String, UserGroup> existingUsersGroup = new HashMap<>();
+            HashMap<String, String> userNamesMap = new HashMap<>();
+            for(UserGroup userGroup: existingUsers){
+                existingUsersGroup.put(userGroup.getUserDetail().getUserName(), userGroup);
+            }
+            for(String userName: userNames){
+                if(!existingUsersGroup.containsKey(userName) && !userNamesMap.containsKey(userName)){
+                    userNamesMap.put(userName,userName);
+                    filteredUsers.add(userName);
+                }
+            }
+        }
+        return filteredUsers;
+    }
+
     /**
      * This functionality is to ensure uniqueness of users to groups
      * @param existingUsers
