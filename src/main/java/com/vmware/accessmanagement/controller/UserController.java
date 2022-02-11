@@ -92,9 +92,9 @@ public class UserController {
      * @throws JsonProcessingException
      */
     @RequestMapping(method = RequestMethod.POST, value = "/{userName}/groups/add", produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserViewDto addUserGroups(@PathVariable String userName, @Valid @RequestBody List<GroupDetailDto> groupDto) {
+    public UserViewDto addGroupsToUser(@PathVariable String userName, @Valid @RequestBody List<GroupDetailDto> groupDto) {
         log.info("Add Groups to User : " + userName);
-        return userService.addUserGroups(userName, groupDto);
+        return userService.addGroupsToUser(userName, groupDto);
     }
 
     /**
@@ -105,9 +105,9 @@ public class UserController {
      * @throws JsonProcessingException
      */
     @RequestMapping(method = RequestMethod.DELETE, value = "/{userName}/groups/delete", produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserViewDto deleteUserGroups(@PathVariable String userName, @Valid @RequestBody List<GroupDetailDto> groupDto) {
+    public UserViewDto deleteGroupsFromUser(@PathVariable String userName, @Valid @RequestBody List<GroupDetailDto> groupDto) {
         log.info("Delete Groups from User : " + userName);
-        return  userService.deleteUserGroups(userName, groupDto);
+        return  userService.deleteGroupsFromUser(userName, groupDto);
     }
 
     /**

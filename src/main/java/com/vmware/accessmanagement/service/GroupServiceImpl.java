@@ -82,7 +82,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public ApiResponseDto addGroupUsers(String groupName, List<String> userNames) {
+    public ApiResponseDto addUsersToGroup(String groupName, List<String> userNames) {
         GroupDetail groupDetail = getGroupDetails(groupName);
         groupDetail = updateGroupUsers(groupDetail, userNames);
         if(Objects.isNull(groupDetail)){
@@ -93,7 +93,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public ApiResponseDto deleteGroupUsers(String groupName, List<String> userNames) {
+    public ApiResponseDto deleteUsersFromGroup(String groupName, List<String> userNames) {
         GroupDetail groupDetail = getGroupDetails(groupName);
         if(Objects.nonNull(groupDetail.getUsers())){
             List<UserGroup> existingUsers = new ArrayList<>(groupDetail.getUsers());

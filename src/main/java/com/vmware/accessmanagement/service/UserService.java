@@ -10,7 +10,7 @@ public interface UserService extends FieldValueExists {
     List<UserViewDto> getUsers();
     ApiResponseDto createUser(UserDetailDto user);
     UserViewDto updateUser(String userName, UserUpdateDto userDto);
-    UserViewDto addUserGroups(String userName, List<GroupDetailDto> userDto);
-    UserViewDto deleteUserGroups(String userName, List<GroupDetailDto> userDto);
+    UserViewDto addGroupsToUser(String userName, List<GroupDetailDto> userDto);
+    UserViewDto deleteGroupsFromUser(String userName, List<GroupDetailDto> userDto);
     ApiResponseDto deleteUser(String userName);
 }

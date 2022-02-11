@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserViewDto addUserGroups(String userName, List<GroupDetailDto> groups) {
+    public UserViewDto addGroupsToUser(String userName, List<GroupDetailDto> groups) {
         UserDetail userDetail = getUserDetails(userName);
         String userRole = userDetail.getUserRole();
         userDetail = updateGroups(userDetail, groups);
@@ -129,7 +129,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserViewDto deleteUserGroups(String userName, List<GroupDetailDto> groups) {
+    public UserViewDto deleteGroupsFromUser(String userName, List<GroupDetailDto> groups) {
         UserDetail userDetail = getUserDetails(userName);
         String userRole = userDetail.getUserRole();
         String newUserRole = GroupRole.NON_ADMIN.toString();

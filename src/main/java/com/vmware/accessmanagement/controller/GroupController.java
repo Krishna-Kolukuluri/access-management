@@ -98,9 +98,9 @@ public class GroupController {
      * @throws JsonProcessingException
      */
     @RequestMapping(method = RequestMethod.POST, value = "/{groupName}/users/add", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity addGroupUsers(@PathVariable String groupName, @Valid @RequestBody List<String> userNames) throws JsonProcessingException {
+    public ResponseEntity addUsersToGroup(@PathVariable String groupName, @Valid @RequestBody List<String> userNames) throws JsonProcessingException {
         log.info("Add users to Group, GroupName: " + groupName);
-        ApiResponseDto apiResponseDto = groupService.addGroupUsers(groupName, userNames);
+        ApiResponseDto apiResponseDto = groupService.addUsersToGroup(groupName, userNames);
         return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
     }
 
@@ -112,9 +112,9 @@ public class GroupController {
      * @throws JsonProcessingException
      */
     @RequestMapping(method = RequestMethod.DELETE, value = "/{groupName}/users/delete", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity deleteGroupUsers(@PathVariable String groupName, @Valid @RequestBody List<String> userNames) throws JsonProcessingException {
+    public ResponseEntity deleteUsersFromGroup(@PathVariable String groupName, @Valid @RequestBody List<String> userNames) throws JsonProcessingException {
         log.info("Delete users from Group, GroupName: " + groupName);
-        ApiResponseDto apiResponseDto = groupService.deleteGroupUsers(groupName, userNames);
+        ApiResponseDto apiResponseDto = groupService.deleteUsersFromGroup(groupName, userNames);
         return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
     }
 

@@ -12,7 +12,7 @@ public interface GroupService {
     GroupUserDto getGroupWithUsers(String groupName);
     List<GroupDetailDto> getGroups();
     ApiResponseDto updateGroupDetail(String groupName, GroupUpdateDto groupDetailDto);
-    ApiResponseDto addGroupUsers(String groupName, List<String> userNames);
-    ApiResponseDto deleteGroupUsers(String groupName, List<String> userNames);
+    ApiResponseDto addUsersToGroup(String groupName, List<String> userNames);
+    ApiResponseDto deleteUsersFromGroup(String groupName, List<String> userNames);
     ApiResponseDto deleteGroup(String groupName);
 }

@@ -17,7 +17,6 @@ import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 
-import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -161,7 +160,7 @@ public class GroupServiceImplTest {
         when(groupRepository.findGroupDetailByGroupName(anyString())).thenReturn(groupDetail);
         List<String> userNames = new ArrayList<>();
         userNames.add("Krishna.Kolukuluri");
-        ApiResponseDto result = groupService.deleteGroupUsers("ADMIN_ALL",userNames);
+        ApiResponseDto result = groupService.deleteUsersFromGroup("ADMIN_ALL",userNames);
     }
 
     @Test
