@@ -76,21 +76,6 @@ public class UserServiceImplTests {
         updatedUserDetail = userDetail;
         updatedUserDetail.setUserName("Krishna.Kolukuluri.updated");
 
-/*        userGroupDto.setFirstName("Krishna");
-        userGroupDto.setLastName("Kolukuluri");
-        userGroupDto.setUserName("Krishna.Kolukuluri");
-        userGroupDto.setUserRole(GroupRole.ADMIN.toString());
-        userGroupDto.setDob(date);
-        userGroupDto.setAddress("111 Address Cary, NC");
-        List<GroupDetailDto> groupDtos=new  ArrayList<>();
-        GroupDetailDto dto=new GroupDetailDto();
-        dto.setGroupName("Admin-Group");
-        dto.setGroupRole(GroupRole.ADMIN.toString());
-        dto.setGroupPermission(GroupPermission.ALL.toString());
-        dto.setGroupDescription("Testing");
-        groupDtos.add(dto);
-        userGroupDto.setGroups(groupDtos);*/
-
         userDetailDto.setFirstName("Krishna");
         userDetailDto.setLastName("Kolukuluri");
         userDetailDto.setUserName("Krishna.Kolukuluri");
@@ -157,6 +142,30 @@ public class UserServiceImplTests {
     }
 
     @Test
+    public void test_UpdateUser_Role(){
+        when(userRepository.findUserByUserName(anyString())).thenReturn(userDetail);
+        when(userRepository.save(any())).thenReturn(updatedUserDetail);
+        when(userGroupRepository.deleteByGroupID(anyLong())).thenReturn(1);
+        when(groupRepository.findGroupDetailByGroupName(anyString())).thenReturn(groupDetail);
+        userUpdateDto.setUserRole(GroupRole.NON_ADMIN.toString());
+        UserViewDto resultDto = userService.updateUser("Krishna.Kolukuluri", userUpdateDto);
+        assertNotNull(resultDto);
+        assertTrue(resultDto.getUserName().contains(updatedUserDetail.getUserName()));
+    }
+
+    @Test
+    public void test_UpdateUser_Role2(){
+        userDetail.setUserRole(GroupRole.NON_ADMIN.toString());
+        when(userRepository.findUserByUserName(anyString())).thenReturn(userDetail);
+        when(userRepository.save(any())).thenReturn(updatedUserDetail);
+        when(userGroupRepository.deleteByGroupID(anyLong())).thenReturn(1);
+        when(groupRepository.findGroupDetailByGroupName(anyString())).thenReturn(groupDetail);
+        UserViewDto resultDto = userService.updateUser("Krishna.Kolukuluri", userUpdateDto);
+        assertNotNull(resultDto);
+        assertTrue(resultDto.getUserName().contains(updatedUserDetail.getUserName()));
+    }
+
+    @Test
     public void test_UpdateUser_NotFound(){
         when(userRepository.findUserByUserName(anyString())).thenReturn(null);
         Exception exception = assertThrows(OpenApiResourceNotFoundException.class, () -> {
@@ -188,4 +197,5 @@ public class UserServiceImplTests {
         });
         assertTrue(exception.getMessage().contains("Field name not supported"));
     }
+
 }

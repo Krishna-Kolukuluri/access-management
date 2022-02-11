@@ -76,6 +76,12 @@ public class GroupServiceImplTest {
         userDetail.setUserRole(GroupRole.ADMIN.toString());
         userDetail.setDob(date);
         userDetail.setAddress("111 Address Cary, NC");
+        List<UserGroup> userGroups = new ArrayList<>();
+        UserGroup userGroup =  new UserGroup();
+        userGroup.setGroupDetail(groupDetail);
+        userGroup.setUserDetail(userDetail);
+        userGroups.add(userGroup);
+        userDetail.setGroups(userGroups);
         user.setUserDetail(userDetail);
         user.setGroupDetail(groupDetail);
         users.add(user);
@@ -148,6 +154,14 @@ public class GroupServiceImplTest {
         when(groupRepository.deleteByGroupName(anyString())).thenReturn(1);
         ApiResponseDto result = groupService.deleteGroup(groupDetail.getGroupName());
         assertTrue(result.getMessage().contains("Group found and deleted"));
+    }
+
+    @Test
+    public void test_deleteGroupUsers(){
+        when(groupRepository.findGroupDetailByGroupName(anyString())).thenReturn(groupDetail);
+        List<String> userNames = new ArrayList<>();
+        userNames.add("Krishna.Kolukuluri");
+        ApiResponseDto result = groupService.deleteGroupUsers("ADMIN_ALL",userNames);
     }
 
     @Test

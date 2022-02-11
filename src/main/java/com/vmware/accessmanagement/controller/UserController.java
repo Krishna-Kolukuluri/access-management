@@ -85,7 +85,7 @@ public class UserController {
     }
 
     /**
-     * API to update users
+     * API to Add users to group
      * @param userName
      * @param groupDto
      * @return UserViewDto
@@ -98,7 +98,7 @@ public class UserController {
     }
 
     /**
-     * API to update users
+     * API to delete groups from user
      * @param userName
      * @param groupDto
      * @return UserViewDto

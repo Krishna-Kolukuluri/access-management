@@ -2,6 +2,7 @@
 
 Access Management API is a Rest based service that enables creating, updating and deleting users, groups and their relationships.
 
+
 Using H2 database for temporary storage of data. Enabled encryption of sensitive data like `password` when saved to database.
 
 * **Users API** can be accessed while service is running from [Users](http://localhost:8080/am/swagger-ui/index.html#/user-controller)

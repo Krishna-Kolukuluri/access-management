@@ -56,21 +56,4 @@ public class UserDetail {
 
     @OneToMany(mappedBy = "userDetail")
     List<UserGroup> groups;
-
-    public UserDetail(UserDetail user) {
-        if(user.getUserRole().equals(GroupRole.ADMIN.toString())){
-            this.userRole = GroupRole.ADMIN.toString();
-        }else{
-            this.userRole = GroupRole.NON_ADMIN.toString();
-        }
-        this.userId = user.getUserId();
-        this.firstName=user.getFirstName();
-        this.lastName=user.getLastName();
-        this.userName=user.getUserName();
-        this.dob=user.getDob();
-        this.userRole=user.getUserRole();
-        this.address=user.getAddress();
-        this.password=user.getPassword();
-        this.groups = user.getGroups();
-    }
 }

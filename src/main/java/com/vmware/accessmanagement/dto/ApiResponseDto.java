@@ -18,12 +18,4 @@ public class ApiResponseDto {
         this.message = message;
         this.status = status;
     }
-
-    @Override
-    public String toString() {
-        return "ApiResponseDto{" +
-                "message='" + message + '\'' +
-                ", status=" + status +
-                '}';
-    }
 }

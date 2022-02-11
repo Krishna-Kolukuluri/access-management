@@ -91,13 +91,13 @@ public class GroupController {
     }
 
     /**
-     * API to update Group
+     * API to Add users to Group
      * @param groupName
      * @param userNames
      * @return ResponseEntity
      * @throws JsonProcessingException
      */
-    @RequestMapping(method = RequestMethod.PUT, value = "/{groupName}/users/add", produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.POST, value = "/{groupName}/users/add", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity addGroupUsers(@PathVariable String groupName, @Valid @RequestBody List<String> userNames) throws JsonProcessingException {
         log.info("Add users to Group, GroupName: " + groupName);
         ApiResponseDto apiResponseDto = groupService.addGroupUsers(groupName, userNames);
@@ -105,7 +105,7 @@ public class GroupController {
     }
 
     /**
-     * API to update Group
+     * API to Delete users from Group
      * @param groupName
      * @param userNames
      * @return ResponseEntity

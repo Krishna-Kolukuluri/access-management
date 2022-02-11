@@ -25,14 +25,6 @@ public class GroupDetailDto extends GroupUpdateDto {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof GroupDetailDto)) return false;
-        GroupDetailDto groupDto = (GroupDetailDto) o;
-        return getGroupName().equals(groupDto.getGroupName());
-    }
-
-    @Override
     public int hashCode() {
         return Objects.hash(getGroupName());
     }

@@ -95,8 +95,8 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public ApiResponseDto deleteGroupUsers(String groupName, List<String> userNames) {
         GroupDetail groupDetail = getGroupDetails(groupName);
-        List<UserGroup> existingUsers = new ArrayList<>(groupDetail.getUsers());
-        if(Objects.nonNull(existingUsers)){
+        if(Objects.nonNull(groupDetail.getUsers())){
+            List<UserGroup> existingUsers = new ArrayList<>(groupDetail.getUsers());
             HashMap<String, String> userMap = new HashMap<>();
             for(String userName: userNames){
                 if(!userMap.containsKey(userName)){
@@ -149,7 +149,7 @@ public class GroupServiceImpl implements GroupService {
     private GroupDetail updateGroupUsers(GroupDetail groupDetail, List<String> userNames){
         UserGroup userGroup;
         List<UserGroup> existingUsers = groupDetail.getUsers();
-        for(String userName: filterUsersNew(existingUsers, userNames)){
+        for(String userName: filterUsers(existingUsers, userNames)){
             userGroup = new UserGroup();
             UserDetail userDetail = userRepository.findUserByUserName(userName);
             if(Objects.nonNull(userDetail)){
@@ -161,6 +161,9 @@ public class GroupServiceImpl implements GroupService {
                 userGroup.setUserDetail(userDetail);
                 userGroup.setGroupDetail(groupDetail);
                 userGroupRepository.save(userGroup);
+                if(Objects.isNull(groupDetail.getUsers())){
+                    groupDetail.setUsers(new ArrayList<>());
+                }
                 groupDetail.getUsers().add(userGroup);
             }else{
                 return null;
@@ -170,41 +173,20 @@ public class GroupServiceImpl implements GroupService {
     }
 
     /**
-     * Updates users in a group
-     * @param groupDetail
-     * @param userInGroupDtos
-     * @return GroupDetail
-     */
-    private GroupDetail updateUsers(GroupDetail groupDetail, List<UserInGroupDto> userInGroupDtos){
-        UserGroup userGroup;
-        List<UserGroup> existingUsers = groupDetail.getUsers();
-        for(UserInGroupDto userInGroupDto: filterUsers(existingUsers, userInGroupDtos)){
-            userGroup = new UserGroup();
-            UserDetail userDetail = userRepository.findUserByUserName(userInGroupDto.getUserName());
-            if(Objects.nonNull(userDetail)){
-                userGroup.setUserDetail(userDetail);
-                userGroup.setGroupDetail(groupDetail);
-                userGroupRepository.save(userGroup);
-                groupDetail.getUsers().add(userGroup);
-            }else{
-                return null;
-            }
-        }
-        return groupDetail;
-    }
-    /**
      * This functionality is to ensure uniqueness of users to groups
      * @param existingUsers
      * @param userNames
      * @return List<GroupDto>
      */
-    private List<String> filterUsersNew(List<UserGroup> existingUsers, List<String>  userNames){
+    private List<String> filterUsers(List<UserGroup> existingUsers, List<String>  userNames){
         List<String> filteredUsers = new ArrayList<>();
         if(Objects.nonNull(userNames)){
             HashMap<String, UserGroup> existingUsersGroup = new HashMap<>();
             HashMap<String, String> userNamesMap = new HashMap<>();
-            for(UserGroup userGroup: existingUsers){
-                existingUsersGroup.put(userGroup.getUserDetail().getUserName(), userGroup);
+            if(Objects.nonNull(existingUsers)){
+                for(UserGroup userGroup: existingUsers){
+                    existingUsersGroup.put(userGroup.getUserDetail().getUserName(), userGroup);
+                }
             }
             for(String userName: userNames){
                 if(!existingUsersGroup.containsKey(userName) && !userNamesMap.containsKey(userName)){
@@ -216,31 +198,6 @@ public class GroupServiceImpl implements GroupService {
         return filteredUsers;
     }
 
-    /**
-     * This functionality is to ensure uniqueness of users to groups
-     * @param existingUsers
-     * @param userInGroupDtos
-     * @return List<GroupDto>
-     */
-    private List<UserInGroupDto> filterUsers(List<UserGroup> existingUsers, List<UserInGroupDto>  userInGroupDtos){
-        List<UserInGroupDto> filteredUsers = new ArrayList<>();
-        if(Objects.nonNull(userInGroupDtos)){
-            HashMap<String, UserGroup> existingUsersGroup = new HashMap<>();
-            for(UserGroup userGroup: existingUsers){
-                existingUsersGroup.put(userGroup.getUserDetail().getUserName(), userGroup);
-            }
-            if(existingUsers.size() ==0){
-                filteredUsers.addAll(userInGroupDtos);
-            }else{
-                for(UserInGroupDto userInGroupDto: userInGroupDtos){
-                    if(!existingUsersGroup.containsKey(userInGroupDto.getUserName())){
-                        filteredUsers.add(userInGroupDto);
-                    }
-                }
-            }
-        }
-        return filteredUsers;
-    }
 
     @Transactional
     @Override

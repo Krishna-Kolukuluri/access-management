@@ -1,15 +1,22 @@
 package com.vmware.accessmanagement.controller;
 
 import com.vmware.accessmanagement.dto.ApiResponseDto;
+import com.vmware.accessmanagement.dto.GroupDetailDto;
 import com.vmware.accessmanagement.dto.UserDetailDto;
 import com.vmware.accessmanagement.dto.UserViewDto;
 import com.vmware.accessmanagement.exception.ApiError;
+import com.vmware.accessmanagement.model.GroupDetail;
+import com.vmware.accessmanagement.model.GroupPermission;
 import com.vmware.accessmanagement.model.GroupRole;
+import com.vmware.accessmanagement.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -17,7 +24,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import javax.transaction.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,6 +36,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 //@Tag("Integration")
 public class UserControllerTest extends BaseTest {
     private static UserDetailDto userDetailDto;
+    static List<GroupDetailDto> groups = new ArrayList<>();
+    static GroupDetailDto groupDto = new GroupDetailDto();
+
+    @Mock
+    private UserService userService;
 
     @BeforeEach
     public void setup() {
@@ -45,6 +59,11 @@ public class UserControllerTest extends BaseTest {
         userDetailDto.setDob(date);
         userDetailDto.setAddress("111 Address Cary, NC");
         userDetailDto.setPassword("Secret@12346");
+
+        groupDto.setGroupName("Non_Admin_Group");
+        groupDto.setGroupRole(GroupRole.NON_ADMIN.toString());
+        groupDto.setGroupPermission(GroupPermission.READ.toString());
+        groupDto.setGroupDescription("Testing");
     }
     private void createUser() throws Exception {
         userDetailDto.setUserName("Krishna.Kolukuluri");
@@ -56,6 +75,12 @@ public class UserControllerTest extends BaseTest {
         String content = mvcResult.getResponse().getContentAsString();
         ApiResponseDto apiResponseDto = mapFromJson(content, ApiResponseDto.class);
         assertEquals("Created User with UserName: '"+ userDetailDto.getUserName()+"'", apiResponseDto.getMessage());
+    }
+
+    private void createGroup() throws Exception {
+        String uri = "/groups/createGroup";
+        String json = mapToJson(groupDto);
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(uri).contentType(MediaType.APPLICATION_JSON).content(json)).andReturn();
     }
 
     @Test
@@ -107,6 +132,36 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
+    public void test_deleteUserGroups() throws Exception {
+        createUser();
+        createGroup();
+        GroupDetailDto group = new GroupDetailDto();
+        group.setGroupDescription(groupDto.getGroupDescription());
+        group.setGroupRole(groupDto.getGroupRole());
+        group.setGroupPermission(groupDto.getGroupPermission());
+        group.setGroupName(groupDto.getGroupName());
+        groups.add(group);
+        String json = mapToJson(groups);
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.delete("/users/Krishna.Kolukuluri/groups/delete").contentType(MediaType.APPLICATION_JSON).content(json)).andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    public void test_addUserGroups() throws Exception {
+        createUser();
+        createGroup();
+        GroupDetailDto group = new GroupDetailDto();
+        group.setGroupDescription(groupDto.getGroupDescription());
+        group.setGroupRole(groupDto.getGroupRole());
+        group.setGroupPermission(groupDto.getGroupPermission());
+        group.setGroupName(groupDto.getGroupName());
+        groups.add(group);
+        String json = mapToJson(groups);
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post("/users/Krishna.Kolukuluri/groups/add").contentType(MediaType.APPLICATION_JSON).content(json)).andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+    }
+
+    @Test
     public void test_UpdateUserDetail() throws Exception {
         createUser();
         String json = mapToJson(userDetailDto);
@@ -149,6 +204,8 @@ public class UserControllerTest extends BaseTest {
         assertEquals(400, mvcResult.getResponse().getStatus());
         assertTrue(mvcResult.getResponse().getContentAsString().contains("BAD_REQUEST"));
     }
+
+
 
     @Test
     public void test_CreateUserWithInValidUserName() throws Exception {
