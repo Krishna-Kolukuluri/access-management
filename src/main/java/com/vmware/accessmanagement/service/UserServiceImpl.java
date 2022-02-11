@@ -20,6 +20,9 @@ import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * UserService to create, delete, update users and add, delete groups for a user.
+ */
 @Service
 @Log4j2
 public class UserServiceImpl implements UserService {
@@ -115,6 +118,12 @@ public class UserServiceImpl implements UserService {
         return updateUser;
     }
 
+    /**
+     * Adds groups to user and updates userRole based on groups role.
+     * @param userName
+     * @param groups
+     * @return
+     */
     @Transactional
     @Override
     public UserViewDto addGroupsToUser(String userName, List<GroupDetailDto> groups) {
@@ -127,6 +136,12 @@ public class UserServiceImpl implements UserService {
         return new UserViewDto(userDetail);
     }
 
+    /**
+     * Deletes groups from user.
+     * @param userName
+     * @param groups
+     * @return
+     */
     @Transactional
     @Override
     public UserViewDto deleteGroupsFromUser(String userName, List<GroupDetailDto> groups) {
@@ -160,6 +175,11 @@ public class UserServiceImpl implements UserService {
         return new UserViewDto(userDetail);
     }
 
+    /**
+     * Fetches latest userDetails from db
+     * @param userName
+     * @return
+     */
     private UserDetail getUserDetails(String userName){
         UserDetail userDetail = userRepository.findUserByUserName(userName);
         if(userDetail == null){
@@ -179,7 +199,7 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Updates the Group details and also adds new users to the group
+     * Updates the groups for a user
      * @param userDetail
      * @param groupDtos
      * @return UserDetail
@@ -229,6 +249,11 @@ public class UserServiceImpl implements UserService {
         return filterGroups;
     }
 
+    /**
+     * Delete user if its available.
+     * @param userName
+     * @return
+     */
     @Transactional
     @Override
     public ApiResponseDto deleteUser(String userName) {
@@ -266,12 +291,23 @@ public class UserServiceImpl implements UserService {
         return count;
     }
 
+    /**
+     * Get all users
+     * @return
+     */
     @Override
     public List<UserViewDto> getUsers() {
         List<UserDetail> users = userRepository.findAll();
         return users.stream().map(user -> modelMapper.map(user, UserViewDto.class)).collect(Collectors.toList());
     }
 
+    /**
+     *
+     * @param value The value to check for
+     * @param fieldName The name of the field for which to check if the value exists
+     * @return
+     * @throws UnsupportedOperationException
+     */
     @Override
     public boolean fieldValueExists(Object value, String fieldName) throws UnsupportedOperationException {
         Assert.notNull(fieldName);

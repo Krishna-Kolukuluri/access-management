@@ -19,6 +19,9 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Group service to add, update, delete groups and add, delete users from group.
+ */
 @Service
 @Log4j2
 public class GroupServiceImpl implements GroupService {
@@ -35,9 +38,11 @@ public class GroupServiceImpl implements GroupService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private Validator validator;
-
+    /**
+     * Create new group is not already available in db
+     * @param groupDto
+     * @return
+     */
     @Override
     public ApiResponseDto createGroup(GroupDetailDto groupDto) {
         GroupDetail groupDetail = groupRepository.save(modelMapper.map(groupDto, GroupDetail.class));
@@ -54,6 +59,11 @@ public class GroupServiceImpl implements GroupService {
         return customMessageDto;
     }
 
+    /**
+     * fetches group + all users associated with that group from db
+     * @param groupName
+     * @return
+     */
     @Override
     public GroupUserDto getGroupWithUsers(String groupName) {
         GroupDetail groupDetail= groupRepository.findGroupDetailByGroupName(groupName);
@@ -63,12 +73,22 @@ public class GroupServiceImpl implements GroupService {
         return new GroupUserDto(groupDetail);
     }
 
+    /**
+     * fetches all groups details from db.
+     * @return
+     */
     @Override
     public List<GroupDetailDto> getGroups() {
         List<GroupDetail> groups = groupRepository.findAll();
         return groups.stream().map(group -> new GroupDetailDto(group)).collect(Collectors.toList());
     }
 
+    /**
+     * Updates group details with only fields that are allowed to change after creating group.
+     * @param groupName
+     * @param groupDto
+     * @return
+     */
     @Transactional
     @Override
     public ApiResponseDto updateGroupDetail(String groupName, GroupUpdateDto groupDto) {
@@ -81,6 +101,12 @@ public class GroupServiceImpl implements GroupService {
         return new ApiResponseDto(HttpStatus.OK,"Updated Group: '" + groupName +"'",  true);
     }
 
+    /**
+     * Adds users to group and updates userRole is group is of type ADMIN.
+     * @param groupName
+     * @param userNames
+     * @return
+     */
     @Override
     public ApiResponseDto addUsersToGroup(String groupName, List<String> userNames) {
         GroupDetail groupDetail = getGroupDetails(groupName);
@@ -92,6 +118,12 @@ public class GroupServiceImpl implements GroupService {
         return new ApiResponseDto(HttpStatus.OK,"Added available users to Group: '" + groupName +"'",  true);
     }
 
+    /**
+     * deletes users from group and updates users role if remaining groups on each user are non_admin and current group is Admin
+     * @param groupName
+     * @param userNames
+     * @return
+     */
     @Override
     public ApiResponseDto deleteUsersFromGroup(String groupName, List<String> userNames) {
         GroupDetail groupDetail = getGroupDetails(groupName);
@@ -114,6 +146,12 @@ public class GroupServiceImpl implements GroupService {
         return new ApiResponseDto(HttpStatus.OK,"Deleted available users from Group: '" + groupName +"'",  true);
     }
 
+    /**
+     * updates users role if remaining groups on each user are non_admin and current group is Admin
+     * @param groupName
+     * @param groupRole
+     * @param userDetail
+     */
     private void updateUserRole(String groupName, String groupRole, UserDetail userDetail){
         if(groupRole.equals(GroupRole.ADMIN.toString())){
             String updatedUserRole = GroupRole.NON_ADMIN.toString();
@@ -131,6 +169,11 @@ public class GroupServiceImpl implements GroupService {
         }
     }
 
+    /**
+     * fetches latest group details from db
+     * @param groupName
+     * @return
+     */
     private GroupDetail getGroupDetails(String groupName){
         GroupDetail groupDetail = groupRepository.findGroupDetailByGroupName(groupName);
         if(groupDetail == null){
@@ -198,7 +241,11 @@ public class GroupServiceImpl implements GroupService {
         return filteredUsers;
     }
 
-
+    /**
+     *
+     * @param groupName
+     * @return
+     */
     @Transactional
     @Override
     public ApiResponseDto deleteGroup(String groupName) {
