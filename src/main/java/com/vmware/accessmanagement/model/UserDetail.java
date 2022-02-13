@@ -2,6 +2,8 @@ package com.vmware.accessmanagement.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.vmware.accessmanagement.encryption.AttributeEncryptor;
+import com.vmware.accessmanagement.service.UserService;
+import com.vmware.accessmanagement.validator.Unique;
 import com.vmware.accessmanagement.validator.ValidPassword;
 import com.vmware.accessmanagement.validator.ValidUserName;
 import lombok.Getter;
@@ -27,6 +29,7 @@ public class UserDetail {
     @Column(name = "user_name", unique = true)
     @NotBlank(message = "UserName is mandatory")
     @ValidUserName
+    //@Unique(service = UserService.class, fieldName = "userName", message = "UserName.unique.violation")
     String userName;
 
     @Column(name = "first_name")

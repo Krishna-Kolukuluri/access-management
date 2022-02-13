@@ -1,6 +1,5 @@
 package com.vmware.accessmanagement.validator;
 
-import com.vmware.accessmanagement.UniqueValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

@@ -1,8 +1,9 @@
-package com.vmware.accessmanagement;
+package com.vmware.accessmanagement.validator;
 
 import com.vmware.accessmanagement.util.AppContext;
 import com.vmware.accessmanagement.validator.FieldValueExists;
 import com.vmware.accessmanagement.validator.Unique;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import javax.validation.ConstraintValidator;
@@ -10,6 +11,7 @@ import javax.validation.ConstraintValidatorContext;
 
 
 public class UniqueValidator implements ConstraintValidator<Unique, Object> {
+    @Autowired
     private ApplicationContext applicationContext;
 
     private FieldValueExists service;

@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Log4j2
 @Transactional
-//@Tag("Integration")
 public class GroupControllerTest extends BaseTest{
     static List<GroupDetailDto> groups = new ArrayList<>();
     static GroupDetailDto groupDto = new GroupDetailDto();

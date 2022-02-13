@@ -25,7 +25,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @Log4j2
-//@Tag("Unit")
 public class UserServiceImplTests {
 
     @InjectMocks

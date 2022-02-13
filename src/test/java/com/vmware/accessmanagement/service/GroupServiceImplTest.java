@@ -29,7 +29,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @Log4j2
-//@Tag("Unit")
 public class GroupServiceImplTest {
     static GroupDetailDto groupDto = new GroupDetailDto();
     static GroupDetail groupDetail = new GroupDetail();
