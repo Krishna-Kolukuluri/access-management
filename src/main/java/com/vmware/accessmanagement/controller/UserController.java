@@ -30,11 +30,26 @@ public class UserController {
 
     /**
      * API to get all Users
-     * @return List of UserViewDTO
+     * @return List<UserViewDto>
+     */
+//    @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public List<UserViewDto> getUsers() {
+//        return userService.getUsers();
+//    }
+
+    /**
+     * API to get All Users with pagination
+     * @return List<UserViewDto>
      */
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<UserViewDto> getUsers() {
-        return userService.getUsers();
+    public List<UserViewDto> getGroups(@RequestParam(defaultValue = "0") Integer pageNo,
+                                          @RequestParam(defaultValue = "20") Integer pageSize,
+                                          @RequestParam(defaultValue = "userName") String sortBy,
+                                          @RequestParam(defaultValue = "no") String all) {
+        if(all.equalsIgnoreCase("yes")){
+            return userService.getUsers();
+        }
+        return userService.getUsers(pageNo, pageSize, sortBy);
     }
 
     /**

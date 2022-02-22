@@ -14,6 +14,7 @@ public interface GroupService {
     ApiResponseDto createGroup(GroupDetailDto groupDto);
     GroupUserDto getGroupWithUsers(String groupName);
     List<GroupDetailDto> getGroups();
+    List<GroupDetailDto> getGroups(int pageNo, int pageSize, String sortBy);
     ApiResponseDto updateGroupDetail(String groupName, GroupUpdateDto groupDetailDto);
     ApiResponseDto patchGroupDetail(String groupName, JsonPatch groupPatch) throws JsonPatchException, JsonProcessingException;
     ApiResponseDto addUsersToGroup(String groupName, List<String> userNames);

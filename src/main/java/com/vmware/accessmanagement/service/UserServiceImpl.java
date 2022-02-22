@@ -18,6 +18,10 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.internal.util.Assert;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -153,6 +157,7 @@ public class UserServiceImpl implements UserService {
         UserViewDto updateUser = new UserViewDto(userRepository.save(patchedDetail));
         return updateUser;
     }
+
     private UserDetail applyPatchToUser(JsonPatch userDetailPatch, UserDetail userDetail) throws JsonPatchException, JsonProcessingException {
         JsonNode patched = userDetailPatch.apply(objectMapper.convertValue(userDetail, JsonNode.class));
         return objectMapper.treeToValue(patched, UserDetail.class);
@@ -338,6 +343,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserViewDto> getUsers() {
         List<UserDetail> users = userRepository.findAll();
+        return users.stream().map(user -> modelMapper.map(user, UserViewDto.class)).collect(Collectors.toList());
+    }
+
+    /**
+     * Get requested number users from specified page
+     * @param pageNo Page number
+     * @param pageSize page size(number of Users per page)
+     * @param sortBy sortBy field name
+     * @return List<UserViewDto>
+     */
+    @Override
+    public List<UserViewDto> getUsers(int pageNo, int pageSize, String sortBy) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
+        Page<UserDetail> users = userRepository.findAll(pageable);
         return users.stream().map(user -> modelMapper.map(user, UserViewDto.class)).collect(Collectors.toList());
     }
 

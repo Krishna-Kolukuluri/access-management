@@ -11,6 +11,9 @@ import com.vmware.accessmanagement.dto.GroupUserDto;
 import com.vmware.accessmanagement.service.GroupService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -73,9 +76,24 @@ public class GroupController {
      * API to get All Groups
      * @return List<GroupDto>
      */
+//    @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public List<GroupDetailDto> getGroups() {
+//        return groupService.getGroups();
+//    }
+
+    /**
+     * API to get All Groups with pagination
+     * @return List<GroupDto>
+     */
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<GroupDetailDto> getGroups() {
-        return groupService.getGroups();
+    public List<GroupDetailDto> getGroups(@RequestParam(defaultValue = "0") Integer pageNo,
+                                          @RequestParam(defaultValue = "20") Integer pageSize,
+                                          @RequestParam(defaultValue = "groupName") String sortBy,
+                                          @RequestParam(defaultValue = "no") String all) {
+        if(all.equalsIgnoreCase("yes")){
+            return groupService.getGroups();
+        }
+        return groupService.getGroups(pageNo, pageSize, sortBy);
     }
 
     /**

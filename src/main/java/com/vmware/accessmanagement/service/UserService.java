@@ -11,6 +11,7 @@ import java.util.List;
 public interface UserService extends FieldValueExists {
     UserViewDto getUserWithGroups(String userName);
     List<UserViewDto> getUsers();
+    List<UserViewDto> getUsers(int pageNo, int pageSize, String sortBy);
     ApiResponseDto createUser(UserDetailDto user);
     UserViewDto updateUser(String userName, UserUpdateDto userDto);
     UserViewDto partiallyUpdateUser(String userName, JsonPatch userDetailPatch) throws JsonPatchException, JsonProcessingException;

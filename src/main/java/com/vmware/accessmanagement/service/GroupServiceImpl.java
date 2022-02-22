@@ -17,6 +17,10 @@ import javax.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -87,6 +91,20 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public List<GroupDetailDto> getGroups() {
         List<GroupDetail> groups = groupRepository.findAll();
+        return groups.stream().map(group -> new GroupDetailDto(group)).collect(Collectors.toList());
+    }
+
+    /**
+     * fetches requested number of groups and at requested page with sorting groups details from db.
+     * @param pageNo Page number
+     * @param pageSize page size(number of Users per page)
+     * @param sortBy sortBy field name
+     * @return
+     */
+    @Override
+    public List<GroupDetailDto> getGroups(int pageNo, int pageSize, String sortBy) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
+        Page<GroupDetail> groups = groupRepository.findAll(pageable);
         return groups.stream().map(group -> new GroupDetailDto(group)).collect(Collectors.toList());
     }
 
