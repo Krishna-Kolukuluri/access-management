@@ -9,11 +9,13 @@ import com.vmware.accessmanagement.dto.GroupDetailDto;
 import com.vmware.accessmanagement.dto.GroupUpdateDto;
 import com.vmware.accessmanagement.dto.GroupUserDto;
 import com.vmware.accessmanagement.service.GroupService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -73,20 +75,34 @@ public class GroupController {
     }
 
     /**
-     * API to get All Groups
-     * @return List<GroupDto>
-     */
-//    @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-//    public List<GroupDetailDto> getGroups() {
-//        return groupService.getGroups();
-//    }
-
-    /**
      * API to get All Groups with pagination
      * @return List<GroupDto>
      */
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary="Get All Groups with pagination")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found all groups")
+    })
     public List<GroupDetailDto> getGroups(@RequestParam(defaultValue = "0") Integer pageNo,
+                                          @RequestParam(defaultValue = "20") Integer pageSize,
+                                          @RequestParam(defaultValue = "groupName") String sortBy,
+                                          @RequestParam(defaultValue = "no") String all) {
+        if(all.equalsIgnoreCase("yes")){
+            return groupService.getGroups();
+        }
+        return groupService.getGroups(pageNo, pageSize, sortBy);
+    }
+
+    /**
+     * V2 API to get All Groups with pagination
+     * @return List<GroupDto>
+     */
+    @GetMapping(value = "/v2/all", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary="Get All Groups with pagination")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found all groups")
+    })
+    public List<GroupDetailDto> getGroupsV2(@RequestParam(defaultValue = "0") Integer pageNo,
                                           @RequestParam(defaultValue = "20") Integer pageSize,
                                           @RequestParam(defaultValue = "groupName") String sortBy,
                                           @RequestParam(defaultValue = "no") String all) {
@@ -104,6 +120,14 @@ public class GroupController {
      * @throws JsonProcessingException
      */
     @RequestMapping(method = RequestMethod.PUT, value = "/{groupName}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "update group detail")
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "200", description = "found group and updated details",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDto.class))}),
+            @ApiResponse(responseCode = "404", description = "Group not found",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDto.class))})
+      }
+    )
     public ResponseEntity updateGroupDetail(@PathVariable String groupName, @Valid @RequestBody GroupUpdateDto groupUpdateDto) throws JsonProcessingException {
         log.info("Update GroupDetail api call with Group Name : " + groupName);
         ApiResponseDto apiResponseDto = groupService.updateGroupDetail(groupName, groupUpdateDto);
