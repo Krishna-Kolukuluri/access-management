@@ -1,6 +1,6 @@
 version: '2'
 services:
-  ap-api:
+  am-api:
     container_name: access-management-server
     build:
       dockerfile: Dockerfile

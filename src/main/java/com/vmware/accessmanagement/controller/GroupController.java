@@ -2,6 +2,8 @@ package com.vmware.accessmanagement.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import com.vmware.accessmanagement.dto.ApiResponseDto;
 import com.vmware.accessmanagement.dto.GroupDetailDto;
 import com.vmware.accessmanagement.dto.GroupUpdateDto;
@@ -91,6 +93,20 @@ public class GroupController {
     }
 
     /**
+     * API to update Group
+     * @param groupName
+     * @param groupPatch
+     * @return ResponseEntity
+     * @throws JsonProcessingException
+     */
+    @PatchMapping(path = "/{groupName}", consumes="application/json-patch+json", produces=MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity updateGroupDescription(@PathVariable String groupName, @RequestBody JsonPatch groupPatch) throws JsonProcessingException, JsonPatchException {
+        log.info("Update GroupDetail api call with Group Name : " + groupName);
+        ApiResponseDto apiResponseDto = groupService.patchGroupDetail(groupName, groupPatch);
+        return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
+    }
+
+    /**
      * API to Add users to Group
      * @param groupName
      * @param userNames
@@ -103,7 +119,6 @@ public class GroupController {
         ApiResponseDto apiResponseDto = groupService.addUsersToGroup(groupName, userNames);
         return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
     }
-
     /**
      * API to Delete users from Group
      * @param groupName

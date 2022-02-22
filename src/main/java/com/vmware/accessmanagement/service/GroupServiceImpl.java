@@ -1,5 +1,10 @@
 package com.vmware.accessmanagement.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import com.vmware.accessmanagement.dto.*;
 import com.vmware.accessmanagement.model.*;
 import com.vmware.accessmanagement.repository.GroupRepository;
@@ -8,7 +13,6 @@ import com.vmware.accessmanagement.repository.UserRepository;
 import lombok.extern.log4j.Log4j2;
 
 import javax.transaction.Transactional;
-import javax.validation.*;
 
 import org.modelmapper.ModelMapper;
 import org.springdoc.api.OpenApiResourceNotFoundException;
@@ -28,6 +32,9 @@ public class GroupServiceImpl implements GroupService {
     private static final String ADMIN_ALL = "ADMIN_ALL";
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private GroupRepository groupRepository;
@@ -91,7 +98,7 @@ public class GroupServiceImpl implements GroupService {
      */
     @Transactional
     @Override
-    public ApiResponseDto updateGroupDetail(String groupName, GroupUpdateDto groupDto) {
+    public ApiResponseDto updateGroupDetail(String groupName, GroupUpdateDto groupDto){
         GroupDetail groupDetail = groupRepository.findGroupDetailByGroupName(groupName);
         if(groupDetail == null){
             throw new OpenApiResourceNotFoundException("Group not found ::" +  groupName);
@@ -99,6 +106,28 @@ public class GroupServiceImpl implements GroupService {
         groupDetail.setGroupDescription(groupDto.getGroupDescription());
         groupRepository.save(groupDetail);
         return new ApiResponseDto(HttpStatus.OK,"Updated Group: '" + groupName +"'",  true);
+    }
+
+    /**
+     * Updates group details with only fields that are allowed to change after creating group.
+     * @param groupName
+     * @param groupPatch
+     * @return
+     */
+    @Transactional
+    @Override
+    public ApiResponseDto patchGroupDetail(String groupName, JsonPatch groupPatch) throws JsonPatchException, JsonProcessingException {
+        GroupDetail groupDetail = groupRepository.findGroupDetailByGroupName(groupName);
+        if(groupDetail == null){
+            throw new OpenApiResourceNotFoundException("Group not found ::" +  groupName);
+        }
+        groupDetail = applyPatchToGroup(groupPatch, groupDetail);
+        groupRepository.save(groupDetail);
+        return new ApiResponseDto(HttpStatus.OK,"Updated Group: '" + groupName +"'",  true);
+    }
+    private GroupDetail applyPatchToGroup(JsonPatch groupPatch, GroupDetail groupDetail) throws JsonPatchException, JsonProcessingException {
+        JsonNode patched = groupPatch.apply(objectMapper.convertValue(groupDetail, JsonNode.class));
+        return objectMapper.treeToValue(patched, GroupDetail.class);
     }
 
     /**

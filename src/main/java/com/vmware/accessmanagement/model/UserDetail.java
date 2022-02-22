@@ -1,6 +1,7 @@
 package com.vmware.accessmanagement.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.vmware.accessmanagement.encryption.AttributeEncryptor;
 import com.vmware.accessmanagement.service.UserService;
 import com.vmware.accessmanagement.validator.Unique;
@@ -58,5 +59,6 @@ public class UserDetail {
     String password;
 
     @OneToMany(mappedBy = "userDetail")
+    @JsonManagedReference(value = "groups")
     List<UserGroup> groups;
 }

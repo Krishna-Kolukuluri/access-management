@@ -2,6 +2,8 @@ package com.vmware.accessmanagement.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import com.vmware.accessmanagement.dto.*;
 import com.vmware.accessmanagement.service.UserService;
 import lombok.extern.log4j.Log4j2;
@@ -72,7 +74,7 @@ public class UserController {
     }
 
     /**
-     * API to update users
+     * API to update user details
      * @param userName
      * @param userUpdateDto
      * @return UserViewDto
@@ -82,6 +84,19 @@ public class UserController {
     public UserViewDto updateUserDetail(@PathVariable String userName, @Valid @RequestBody UserUpdateDto userUpdateDto) {
         log.info("Update User details : " + userName);
         return userService.updateUser(userName, userUpdateDto);
+    }
+
+    /**
+     * API to partially update user details
+     * @param userName
+     * @param userDetailPatch
+     * @return UserViewDto
+     * @throws JsonProcessingException
+     */
+    @PatchMapping(path = "/{userName}", consumes="application/json-patch+json", produces=MediaType.APPLICATION_JSON_VALUE)
+    public UserViewDto patchUserDetail(@PathVariable String userName, @RequestBody JsonPatch userDetailPatch) throws JsonPatchException, JsonProcessingException {
+        log.info("Patch User details : " + userName);
+        return userService.partiallyUpdateUser(userName, userDetailPatch);
     }
 
     /**

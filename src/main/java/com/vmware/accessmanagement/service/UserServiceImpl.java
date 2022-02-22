@@ -1,5 +1,10 @@
 package com.vmware.accessmanagement.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import com.vmware.accessmanagement.dto.*;
 import com.vmware.accessmanagement.model.GroupDetail;
 import com.vmware.accessmanagement.model.GroupRole;
@@ -35,6 +40,8 @@ public class UserServiceImpl implements UserService {
     private UserGroupRepository userGroupRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     public UserViewDto getUserWithGroups(String userName) {
@@ -116,6 +123,39 @@ public class UserServiceImpl implements UserService {
         }*/
         UserViewDto updateUser = new UserViewDto(userRepository.save(userDetail));
         return updateUser;
+    }
+
+    @Transactional
+    @Override
+    public UserViewDto partiallyUpdateUser(String userName, JsonPatch userDetailPatch) throws JsonPatchException, JsonProcessingException {
+        UserDetail userDetail = getUserDetails(userName);
+        UserDetail patchedDetail = applyPatchToUser(userDetailPatch, new UserDetail());
+        List<UserGroup> deleteGroups = new ArrayList<>();
+        List<GroupDetailDto> addGroups = new ArrayList<>();
+        if(!userDetail.getUserRole().equals(patchedDetail.getUserRole())){
+            GroupDetailDto groupDto = new GroupDetailDto();
+            if(patchedDetail.getUserRole().equals(GroupRole.ADMIN.toString())){
+                groupDto.setGroupName(ADMIN_ALL);
+                addGroups.add(groupDto);
+            }else{
+                List<UserGroup> userGroups = new ArrayList<UserGroup>(userDetail.getGroups());
+                for(UserGroup userGroup: userGroups){
+                    if(userGroup.getGroupDetail().getGroupRole().equals(GroupRole.ADMIN.toString())){
+                        deleteGroups.add(userGroup);
+                        userDetail.getGroups().remove(userGroup);
+                    }
+                }
+            }
+        }
+        deleteGroupRelation(deleteGroups);
+        userDetail = updateGroups(userDetail, addGroups);
+        patchedDetail = applyPatchToUser(userDetailPatch, userDetail);
+        UserViewDto updateUser = new UserViewDto(userRepository.save(patchedDetail));
+        return updateUser;
+    }
+    private UserDetail applyPatchToUser(JsonPatch userDetailPatch, UserDetail userDetail) throws JsonPatchException, JsonProcessingException {
+        JsonNode patched = userDetailPatch.apply(objectMapper.convertValue(userDetail, JsonNode.class));
+        return objectMapper.treeToValue(patched, UserDetail.class);
     }
 
     /**

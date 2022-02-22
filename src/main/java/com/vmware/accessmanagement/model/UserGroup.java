@@ -1,5 +1,6 @@
 package com.vmware.accessmanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,10 +20,12 @@ public class UserGroup {
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name="user_id")
+    @JsonBackReference(value = "groups")
     private UserDetail userDetail;
 
     @ManyToOne()
     @JoinColumn(name="group_id")
+    @JsonBackReference(value = "users")
     private GroupDetail groupDetail;
 
 }

@@ -1,5 +1,6 @@
 package com.vmware.accessmanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,5 +37,6 @@ public class GroupDetail {
     String groupPermission;
 
     @OneToMany(orphanRemoval = true, mappedBy = "groupDetail")
+    @JsonManagedReference(value = "users")
     List<UserGroup> users;
 }
