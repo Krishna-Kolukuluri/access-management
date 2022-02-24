@@ -9,11 +9,14 @@ import com.vmware.accessmanagement.dto.GroupDetailDto;
 import com.vmware.accessmanagement.dto.GroupUpdateDto;
 import com.vmware.accessmanagement.dto.GroupUserDto;
 import com.vmware.accessmanagement.service.GroupService;
+import com.vmware.accessmanagement.validator.ValidGroupName;
+import com.vmware.accessmanagement.validator.ValidUserName;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,12 +26,15 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.Objects;
 
 @RestController
 @RequestMapping("/groups")
 @Log4j2
+@Validated
 public class GroupController {
 
     @Autowired
@@ -62,7 +68,7 @@ public class GroupController {
      * @return GroupUserDto
      */
     @GetMapping(value = "/{groupName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getGroupWithUsers(@PathVariable String groupName) throws JsonProcessingException {
+    public ResponseEntity getGroupWithUsers(@PathVariable @ValidGroupName String groupName) throws JsonProcessingException {
         log.info("Get Group and users with Group Name -> " + groupName);
         GroupUserDto groupUserDto = groupService.getGroupWithUsers(groupName);
         if(Objects.isNull(groupUserDto.getGroupName())){
@@ -127,7 +133,7 @@ public class GroupController {
                     content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDto.class))})
       }
     )
-    public ResponseEntity updateGroupDetail(@PathVariable String groupName, @Valid @RequestBody GroupUpdateDto groupUpdateDto) throws JsonProcessingException {
+    public ResponseEntity updateGroupDetail(@PathVariable @ValidGroupName String groupName, @Valid @RequestBody GroupUpdateDto groupUpdateDto) throws JsonProcessingException {
         log.info("Update GroupDetail api call with Group Name : " + groupName);
         ApiResponseDto apiResponseDto = groupService.updateGroupDetail(groupName, groupUpdateDto);
         return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
@@ -141,7 +147,7 @@ public class GroupController {
      * @throws JsonProcessingException
      */
     @PatchMapping(path = "/{groupName}", consumes="application/json-patch+json", produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateGroupDescription(@PathVariable String groupName, @RequestBody JsonPatch groupPatch) throws JsonProcessingException, JsonPatchException {
+    public ResponseEntity updateGroupDescription(@PathVariable @ValidGroupName String groupName, @RequestBody JsonPatch groupPatch) throws JsonProcessingException, JsonPatchException {
         log.info("Update GroupDetail api call with Group Name : " + groupName);
         ApiResponseDto apiResponseDto = groupService.patchGroupDetail(groupName, groupPatch);
         return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
@@ -155,7 +161,7 @@ public class GroupController {
      * @throws JsonProcessingException
      */
     @RequestMapping(method = RequestMethod.POST, value = "/{groupName}/users/add", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity addUsersToGroup(@PathVariable String groupName, @Valid @RequestBody List<String> userNames) throws JsonProcessingException {
+    public ResponseEntity addUsersToGroup(@PathVariable @ValidGroupName String groupName, @Valid @RequestBody List<String> userNames) throws JsonProcessingException {
         log.info("Add users to Group, GroupName: " + groupName);
         ApiResponseDto apiResponseDto = groupService.addUsersToGroup(groupName, userNames);
         return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
@@ -168,7 +174,7 @@ public class GroupController {
      * @throws JsonProcessingException
      */
     @RequestMapping(method = RequestMethod.DELETE, value = "/{groupName}/users/delete", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity deleteUsersFromGroup(@PathVariable String groupName, @Valid @RequestBody List<String> userNames) throws JsonProcessingException {
+    public ResponseEntity deleteUsersFromGroup(@PathVariable @ValidGroupName String groupName, @Valid @RequestBody List<String> userNames) throws JsonProcessingException {
         log.info("Delete users from Group, GroupName: " + groupName);
         ApiResponseDto apiResponseDto = groupService.deleteUsersFromGroup(groupName, userNames);
         return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));
@@ -182,7 +188,7 @@ public class GroupController {
      */
     @RequestMapping(method = RequestMethod.DELETE, value = "/{groupName}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity deleteGroupDetail(@PathVariable String groupName) throws JsonProcessingException {
+    public ResponseEntity deleteGroupDetail(@PathVariable @ValidGroupName String groupName) throws JsonProcessingException {
         log.info("Delete GroupDetail api call with Group Name : " + groupName);
         ApiResponseDto apiResponseDto = groupService.deleteGroup(groupName);
         return ResponseEntity.status(apiResponseDto.getHttpStatus()).body(objectMapper.writeValueAsString(apiResponseDto));

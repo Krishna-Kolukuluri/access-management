@@ -1,6 +1,7 @@
 package com.vmware.accessmanagement.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.vmware.accessmanagement.validator.ValidGroupName;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,6 +24,7 @@ public class GroupDetail {
 
     @NotBlank(message = "groupName is mandatory")
     @Column(name ="group_name", unique = true)
+    @ValidGroupName
     String groupName;
 
     @Column(name ="group_description")

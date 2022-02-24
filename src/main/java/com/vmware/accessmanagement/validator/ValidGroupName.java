@@ -12,11 +12,11 @@ import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Documented
-@Constraint(validatedBy = UserNameValidator.class)
+@Constraint(validatedBy = GroupNameValidator.class)
 @Target({ElementType.PARAMETER, FIELD, ANNOTATION_TYPE })
 @Retention(RUNTIME)
-public @interface ValidUserName {
-    String message() default "Invalid User Name";
+public @interface ValidGroupName {
+    String message() default "Invalid Group Name";
 
     Class<?>[] groups() default {};
 

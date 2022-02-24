@@ -6,6 +6,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.vmware.accessmanagement.dto.*;
 import com.vmware.accessmanagement.service.UserService;
+import com.vmware.accessmanagement.validator.ValidUserName;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,12 +16,15 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.Objects;
 
 @RestController
 @RequestMapping("/users")
 @Log4j2
+@Validated //class level validation like annotations on the path variable or even the request parameter directly
 public class UserController {
     @Autowired
     private UserService userService;
@@ -76,7 +80,7 @@ public class UserController {
      * @return UserViewDto
      */
     @GetMapping(value = "/{userName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getUserWithGroups(@PathVariable String userName) throws JsonProcessingException {
+    public ResponseEntity getUserWithGroups(@PathVariable @ValidUserName String userName) throws JsonProcessingException {
         log.info("Get users and groups with User Name -> " + userName);
         UserViewDto userViewDto = userService.getUserWithGroups(userName);
         if(Objects.isNull(userViewDto.getUserName())){
@@ -95,7 +99,7 @@ public class UserController {
      * @throws JsonProcessingException
      */
     @RequestMapping(method = RequestMethod.PUT, value = "/{userName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserViewDto updateUserDetail(@PathVariable String userName, @Valid @RequestBody UserUpdateDto userUpdateDto) {
+    public UserViewDto updateUserDetail(@PathVariable @ValidUserName String userName, @Valid @RequestBody UserUpdateDto userUpdateDto) {
         log.info("Update User details : " + userName);
         return userService.updateUser(userName, userUpdateDto);
     }
@@ -108,7 +112,7 @@ public class UserController {
      * @throws JsonProcessingException
      */
     @PatchMapping(path = "/{userName}", consumes="application/json-patch+json", produces=MediaType.APPLICATION_JSON_VALUE)
-    public UserViewDto patchUserDetail(@PathVariable String userName, @RequestBody JsonPatch userDetailPatch) throws JsonPatchException, JsonProcessingException {
+    public UserViewDto patchUserDetail(@PathVariable @ValidUserName String userName, @RequestBody JsonPatch userDetailPatch) throws JsonPatchException, JsonProcessingException {
         log.info("Patch User details : " + userName);
         return userService.partiallyUpdateUser(userName, userDetailPatch);
     }
@@ -121,7 +125,7 @@ public class UserController {
      * @throws JsonProcessingException
      */
     @RequestMapping(method = RequestMethod.POST, value = "/{userName}/groups/add", produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserViewDto addGroupsToUser(@PathVariable String userName, @Valid @RequestBody List<GroupDetailDto> groupDto) {
+    public UserViewDto addGroupsToUser(@PathVariable @ValidUserName String userName, @Valid @RequestBody List<GroupDetailDto> groupDto) {
         log.info("Add Groups to User : " + userName);
         return userService.addGroupsToUser(userName, groupDto);
     }
@@ -134,7 +138,7 @@ public class UserController {
      * @throws JsonProcessingException
      */
     @RequestMapping(method = RequestMethod.DELETE, value = "/{userName}/groups/delete", produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserViewDto deleteGroupsFromUser(@PathVariable String userName, @Valid @RequestBody List<GroupDetailDto> groupDto) {
+    public UserViewDto deleteGroupsFromUser(@PathVariable @ValidUserName String userName, @Valid @RequestBody List<GroupDetailDto> groupDto) {
         log.info("Delete Groups from User : " + userName);
         return  userService.deleteGroupsFromUser(userName, groupDto);
     }
@@ -146,7 +150,7 @@ public class UserController {
      * @throws JsonProcessingException
      */
     @RequestMapping(method = RequestMethod.DELETE, value = "/{userName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity deleteUser(@PathVariable String userName) throws JsonProcessingException {
+    public ResponseEntity deleteUser(@PathVariable @ValidUserName String userName) throws JsonProcessingException {
         log.info("Delete user with userName: " + userName);
         ApiResponseDto  apiResponseDto = userService.deleteUser(userName);
 
