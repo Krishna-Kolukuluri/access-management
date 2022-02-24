@@ -15,9 +15,9 @@ public class GroupDetailDto extends GroupUpdateDto {
     //
     @NotBlank(message = "groupName is mandatory")
     String groupName;
-    @NotBlank(message = "groupRole is mandatory")
+    //@NotBlank(message = "groupRole is mandatory")
     String groupRole;
-    @NotBlank(message = "groupPermission is mandatory")
+    //@NotBlank(message = "groupPermission is mandatory")
     String groupPermission;
 
     public GroupDetailDto(GroupDetail groupDetail){
