@@ -5,21 +5,20 @@ import com.vmware.accessmanagement.dto.GroupDetailDto;
 import com.vmware.accessmanagement.dto.UserDetailDto;
 import com.vmware.accessmanagement.dto.UserViewDto;
 import com.vmware.accessmanagement.exception.ApiError;
-import com.vmware.accessmanagement.model.GroupDetail;
 import com.vmware.accessmanagement.model.GroupPermission;
 import com.vmware.accessmanagement.model.GroupRole;
 import com.vmware.accessmanagement.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import javax.transaction.Transactional;
 import java.text.ParseException;
@@ -30,6 +29,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 @Log4j2
 @Transactional
@@ -43,6 +43,10 @@ public class UserControllerTest extends BaseTest {
 
     @BeforeEach
     public void setup() {
+        mvc = MockMvcBuilders
+                .webAppContextSetup(webApplicationContext)
+                .apply(springSecurity()).build();
+
         MockitoAnnotations.openMocks(this);
     }
 
@@ -83,6 +87,7 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_InternalServerException() throws Exception {
         userDetailDto.setPassword("Secret@12346");
         String json = mapToJson(userDetailDto);
@@ -94,6 +99,7 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_ConstraintViolationException() throws Exception {
         userDetailDto.setPassword("Secret");
         String json = mapToJson(userDetailDto);
@@ -107,6 +113,7 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_GetUsers() throws Exception {
         String uri = "/users/all";
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(uri).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -114,6 +121,7 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_GetUser() throws Exception {
         createUser();
         String uri = "/users/Krishna.Kolukuluri";
@@ -125,12 +133,14 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_GetUserWithGroups_NotFound() throws Exception {
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get("/users/abcGroup").contentType(MediaType.APPLICATION_JSON)).andReturn();
         assertEquals(404, mvcResult.getResponse().getStatus());
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_deleteUserGroups() throws Exception {
         createUser();
         createGroup();
@@ -146,6 +156,7 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_addUserGroups() throws Exception {
         createUser();
         createGroup();
@@ -161,6 +172,7 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_UpdateUserDetail() throws Exception {
         createUser();
         String json = mapToJson(userDetailDto);
@@ -169,6 +181,7 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_MediaNotSupportedException() throws Exception {
         String json = mapToJson(userDetailDto);
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.put("/users/Krishna.Kolukuluri").contentType(MediaType.APPLICATION_ATOM_XML).content(json)).andReturn();
@@ -176,6 +189,7 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_DeleteUserDetail() throws Exception {
         createUser();
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.delete("/users/Krishna.Kolukuluri").contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -183,8 +197,9 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_MethodNotAllowedException() throws Exception {
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.patch("/users/Krishna.Kolukuluri").contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.patch("/users/Krishna.Kolukuluri/groups/add").contentType(MediaType.APPLICATION_JSON)).andReturn();
         assertEquals(405, mvcResult.getResponse().getStatus());
         String content = mvcResult.getResponse().getContentAsString();
         ApiError apiResponseDto = mapFromJson(content, ApiError.class);
@@ -192,11 +207,13 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_CreateUser() throws Exception {
         createUser();
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_CreateUser_Exceptions() throws Exception {
         createUser();
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post("/users/createUser").contentType(MediaType.APPLICATION_JSON).content( mapToJson(userDetailDto))).andReturn();
@@ -207,6 +224,7 @@ public class UserControllerTest extends BaseTest {
 
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_CreateUserWithInValidUserName() throws Exception {
         userDetailDto.setUserName("Kris");
         userDetailDto.setPassword("Secret@123456");
@@ -222,6 +240,7 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_CreateUserWithInValidPassword() throws Exception {
         userDetailDto.setPassword("Secretabcde");
         userDetailDto.setUserName("Krishna.Kolukuluri");
@@ -237,6 +256,7 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_CreateUserWithInValidPasswordAndUsername() throws Exception {
         userDetailDto.setUserName("Kris");
         userDetailDto.setPassword("Secretabcde");
@@ -251,6 +271,7 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_GetUsers_LogLevel() throws Exception {
         String uri = "/users/all?logLevel=info";
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(uri).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -276,6 +297,5 @@ public class UserControllerTest extends BaseTest {
         uri = "/users/all?logLevel=all";
         mvcResult = mvc.perform(MockMvcRequestBuilders.get(uri).contentType(MediaType.APPLICATION_JSON)).andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
-
     }
 }

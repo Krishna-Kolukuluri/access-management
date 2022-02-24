@@ -13,8 +13,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import javax.transaction.Transactional;
 import java.text.ParseException;
@@ -25,6 +27,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 @Log4j2
 @Transactional
@@ -37,6 +40,10 @@ public class GroupControllerTest extends BaseTest{
 
     @BeforeEach
     public void setup() throws ParseException {
+        mvc = MockMvcBuilders
+                .webAppContextSetup(webApplicationContext)
+                .apply(springSecurity()).build();
+
       MockitoAnnotations.openMocks(this);
       groupDto.setGroupName("Admin_Group");
       groupDto.setGroupRole(GroupRole.ADMIN.toString());
@@ -75,6 +82,7 @@ public class GroupControllerTest extends BaseTest{
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_GetGroups() throws Exception {
         String uri = "/groups/all";
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(uri).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -82,11 +90,13 @@ public class GroupControllerTest extends BaseTest{
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_CreateGroup() throws Exception {
         createGroup();
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_CreateGroup_Exceptions() throws Exception {
         createGroup();
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post("/groups/createGroup").contentType(MediaType.APPLICATION_JSON).content(mapToJson(groupDto))).andReturn();
@@ -95,6 +105,7 @@ public class GroupControllerTest extends BaseTest{
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_addGroupUsers() throws Exception {
         createGroup();
         createUser();
@@ -106,6 +117,7 @@ public class GroupControllerTest extends BaseTest{
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_deleteGroupUsers() throws Exception {
         createGroup();
         userDetailDto.setUserRole(GroupRole.ADMIN.toString());
@@ -118,6 +130,7 @@ public class GroupControllerTest extends BaseTest{
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_getGroupWithUsers() throws Exception {
         createGroup();
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get("/groups/Admin_Group").contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -125,12 +138,14 @@ public class GroupControllerTest extends BaseTest{
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_getGroupWithUsers_NotFound() throws Exception {
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get("/groups/Admin_Group").contentType(MediaType.APPLICATION_JSON)).andReturn();
         assertEquals(404, mvcResult.getResponse().getStatus());
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_UpdateGroupDetail() throws Exception {
         createGroup();
         String json = mapToJson(groupDto);
@@ -139,6 +154,7 @@ public class GroupControllerTest extends BaseTest{
     }
 
     @Test
+    @WithMockUser(username="Krishna", password = "password", roles={"user", "admin"})
     public void test_DeleteGroupDetail() throws Exception {
         createGroup();
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.delete("/groups/Admin_Group").contentType(MediaType.APPLICATION_JSON)).andReturn();
