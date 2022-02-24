@@ -21,7 +21,6 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/users")
 @Log4j2
-@Validated
 public class UserController {
     @Autowired
     private UserService userService;

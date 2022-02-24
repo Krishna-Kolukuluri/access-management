@@ -29,7 +29,6 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/groups")
 @Log4j2
-@Validated
 public class GroupController {
 
     @Autowired
