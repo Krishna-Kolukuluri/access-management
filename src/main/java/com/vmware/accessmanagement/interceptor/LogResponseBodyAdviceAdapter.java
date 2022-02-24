@@ -12,7 +12,7 @@ import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 /**
- * Class to intercept Request and logs httpservlet response
+ * Class to intercept Response and logs httpservlet response
  */
 @ControllerAdvice
 public class LogResponseBodyAdviceAdapter implements ResponseBodyAdvice<Object> {
@@ -26,7 +26,8 @@ public class LogResponseBodyAdviceAdapter implements ResponseBodyAdvice<Object> 
 
     @Override
     public Object beforeBodyWrite(Object o, MethodParameter methodParameter, MediaType mediaType,
-                                  Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
+                                  Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest,
+                                  ServerHttpResponse serverHttpResponse) {
         if (serverHttpRequest instanceof ServletServerHttpRequest && serverHttpResponse instanceof ServletServerHttpResponse) {
             loggingService.logResponse(((ServletServerHttpRequest) serverHttpRequest).getServletRequest(),
                     ((ServletServerHttpResponse) serverHttpResponse).getServletResponse(), o);
